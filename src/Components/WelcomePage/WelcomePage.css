@@ -1,0 +1,51 @@
+.page-section {
+    padding: 8rem 0;
+  }
+  
+  .bg-light {
+    background-color: #FF5555 !important;
+  }
+
+  .page-section.bg-primary{
+    background-color: #0d2944 !important;
+  }
+
+  .page-section{
+    background-color:#F8F8F2 !important;
+  }
+
+.masthead {
+    display: block;
+    padding-top: 40rem;
+    padding-bottom: calc(15rem - 4.5rem);
+    background:url("../../Assets/bg_main3.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-size: cover;
+  }
+
+
+  @media only screen and (max-width: 600px) {
+    .masthead{
+      padding-top: 15rem;
+    }
+  }
+
+  
+small {
+  font-size: 80%;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-muted {
+  color: #ffffff !important;
+}
+
+.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
