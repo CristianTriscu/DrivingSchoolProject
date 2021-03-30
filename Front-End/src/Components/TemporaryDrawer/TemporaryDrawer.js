@@ -8,12 +8,19 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
 import { useHistory } from "react-router-dom";
 import MenuIcon from "@material-ui/icons/Menu";
+import CloseIcon from "@material-ui/icons/Close";
+import { Typography } from "@material-ui/core";
+import {Link} from "@material-ui/core"
+
 const useStyles = makeStyles({
   list: {
+    paddingTop: 20,
     width: 250,
+    height: "100vh",
+    backgroundColor: "#282A36",
+    color: "#F8F8F2",
   },
   fullList: {
     width: "auto",
@@ -50,7 +57,14 @@ export default function TemporaryDrawer() {
       onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}
     >
+       <ListItem button alignItems='center' >
+          <Typography >
+          <CloseIcon style={{paddingLeft:"5vw", color: "#F8F8F2"}} fontSize="large" />
+          </Typography>
+          </ListItem>
+          <Divider style={{ backgroundColor: "#F8F8F2" }}/>
       <List>
+     
         <ListItem
           button
           key={"Welcome Page"}
@@ -68,7 +82,7 @@ export default function TemporaryDrawer() {
           onClick={() =>
             history.push({
               pathname: "/DashboardAuth",
-              state: { email: localStorage.getItem('driverEmail') },
+              state: { email: localStorage.getItem("driverEmail") },
             })
           }
         >
@@ -78,7 +92,9 @@ export default function TemporaryDrawer() {
           <ListItemText primary={"Dashboard"} />
         </ListItem>
 
-        <ListItem button key={"Rezervă ședință"}>
+        <ListItem button key={"Rezervă ședință"}
+         onClick={() => history.push("/Reservation")}
+        >
           <ListItemIcon>
             <InboxIcon />
           </ListItemIcon>
@@ -86,11 +102,11 @@ export default function TemporaryDrawer() {
         </ListItem>
       </List>
 
-      <Divider />
+      <Divider style={{ backgroundColor: "#F8F8F2" }} />
       <List>
         <ListItem button key={"Teste de verificare"}>
           <ListItemIcon>
-            <InboxIcon />
+            <InboxIcon style={{ color: "#F8F8F2" }} />
           </ListItemIcon>
           <ListItemText primary={"Teste de verificare"} />
         </ListItem>
@@ -102,7 +118,11 @@ export default function TemporaryDrawer() {
           <ListItemText primary={"Notificări"} />
         </ListItem>
 
-        <ListItem button key={"Parc auto"}>
+        <ListItem
+          onClick={() => history.push("/ParcAuto")}
+          button
+          key={"Parc auto"}
+        >
           <ListItemIcon>
             <InboxIcon />
           </ListItemIcon>

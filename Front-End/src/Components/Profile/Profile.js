@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { withStyles } from "@material-ui/styles";
 import server from "../../ServerName/ServerName";
 import { Button } from "@material-ui/core";
-import { withStyles } from "@material-ui/styles";
-import { randomText, randomText2 } from "../../Assets/text";
+
+import { randomText, randomText2 } from "../../assets/text";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 
@@ -16,6 +17,14 @@ const styles = (theme) => ({
     textAlign: "center",
     color: "black",
   },
+  bg:{
+    padding: 25,
+    textAlign: "center",
+    color: "black",
+    backgroundColor:"#9B9DC0",
+    minHeight:"100vh"
+    
+  }
 });
 
 class Profile extends Component {
@@ -35,7 +44,7 @@ class Profile extends Component {
 
     if (this.props.location.state !== undefined)
       return (
-        <div className={classes.paper}>
+        <div style={{}} className={classes.bg}>
           <Grid container spacing={3}>
          
             <Grid item xs={12}>

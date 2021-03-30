@@ -16,9 +16,10 @@
 
 .masthead {
     display: block;
-    padding-top: 40rem;
-    padding-bottom: calc(15rem - 4.5rem);
-    background:url("../../Assets/bg_main3.svg");
+    padding-top: 80vh;
+    /*padding-bottom: calc(15rem - 10rem);
+    */
+    background:url("../../assets/bg_main3.svg");
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: scroll;

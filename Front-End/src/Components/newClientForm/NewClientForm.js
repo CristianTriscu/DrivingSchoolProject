@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { newClientFormStyles } from "../newClientForm/newClientFormStyles";
-import InputAdornment from "@material-ui/core/InputAdornment";
+
 import server from "../../ServerName/ServerName";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Paper from "@material-ui/core/Paper";
@@ -255,7 +255,7 @@ class NewClientForm extends Component {
     console.log(this.state);
     console.log("new client form props")
     console.log(this.props)
-    const props = this.props;
+    
     const { classes } = this.props;
     if (!this.state.isLoggedIn) {
       return (

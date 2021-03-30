@@ -85,9 +85,7 @@ class WelcomePage extends Component {
                     </div>
                 </section>
 
-                <footer class="bg-light py-5">
-                    <div class="container"><div class="small text-center text-muted">Driving School Online Platform - Trișcu Cristian</div></div>
-                </footer>
+              
                 </div>
             )
         }
