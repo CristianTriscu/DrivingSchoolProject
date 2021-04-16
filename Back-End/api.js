@@ -135,7 +135,7 @@ router.route("/users").post(async (req, res) => {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
-      role:"client"
+      role: "client",
     })
     .then(() => {
       res.json({ message: "Registration successfully" });
@@ -178,6 +178,7 @@ router.route("/users/:id").put((req, res) => {
         username: req.body.username,
         email: req.body.email,
         password: req.body.password,
+        role:req.body.role,
       },
       {
         where: {
@@ -274,7 +275,7 @@ router.route("/clients").post((req, res) => {
     email: req.body.email,
     license_type: req.body.license_type,
     user_id: req.body.user_id,
-    instructor_id: req.body.instructor_id,
+    employeeId: req.body.employeeId,
     is_active: req.body.is_active,
   }).then((result) => res.json(result));
 });
@@ -295,85 +296,91 @@ router.route("/clients").post((req, res) => {
   }).then((result) => res.json(result));
 });
 
-router.post("/newClient", permit("client","administrator"), async (req, res) => {
-  const today = new Date();
-  const adressId =
-    parseInt(Math.random() * 100) +
-    req.body.street.charAt(0) +
-    req.body.city.charAt(0) +
-    today.getDay() +
-    today.getHours() +
-    today.getMinutes() +
-    today.getSeconds() +
-    parseInt(Math.random() * 100);
-  const identityCardId =
-    parseInt(Math.random() * 100) +
-    req.body.series +
-    req.body.number +
-    today.getDay() +
-    today.getHours() +
-    today.getMinutes() +
-    today.getSeconds() +
-    parseInt(Math.random() * 100);
-  const clientId =
-    parseInt(Math.random() * 100) +
-    parseInt(today.getDay()) +
-    parseInt(today.getMinutes()) +
-    parseInt(today.getFullYear()) +
-    parseInt(Math.random() * 100);
+router.post(
+  "/newClient",
+  permit("client", "administrator"),
+  async (req, res) => {
+    const today = new Date();
+    const adressId =
+      parseInt(Math.random() * 100) +
+      req.body.street.charAt(0) +
+      req.body.city.charAt(0) +
+      today.getDay() +
+      today.getHours() +
+      today.getMinutes() +
+      today.getSeconds() +
+      parseInt(Math.random() * 100);
+    const identityCardId =
+      parseInt(Math.random() * 100) +
+      req.body.series +
+      req.body.number +
+      today.getDay() +
+      today.getHours() +
+      today.getMinutes() +
+      today.getSeconds() +
+      parseInt(Math.random() * 100);
+    const clientId =
+      parseInt(Math.random() * 100) +
+      parseInt(today.getDay()) +
+      parseInt(today.getMinutes()) +
+      parseInt(today.getFullYear()) +
+      parseInt(Math.random() * 100);
 
-  try {
-    if (Object.keys(req.body).length === 0) {
-      return res.status(400).json({ message: "body is missing" });
+    try {
+      if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: "body is missing" });
+      }
+
+      //regex pt cnp
+      let cnp = `^[1-9]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(0[1-9]|[1-4]\d|5[0-2]|99)(00[1-9]|0[1-9]\d|[1-9]\d\d)\d$`;
+
+      //TODO DE ADAUGAT VALIDARI AFERENTE
+      //    if (Object.keys(req.body).length !== 3 || !req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('category') || !req.body.hasOwnProperty('calories')) {
+      //      return res.status(400).json({ "message": "malformed request" })
+      //}
+
+      await Client.create({
+        id: clientId,
+        last_name: req.body.last_name,
+        first_name: req.body.first_name,
+        previous_name: req.body.previous_name,
+        birth_date: req.body.birth_date,
+        phone: req.body.phone,
+        email: req.body.email,
+        license_type: req.body.license_type,
+        userId: req.body.userId,
+        employeeId: req.body.employeeId,
+        is_active: req.body.is_active,
+      });
+      await identityCard.create({
+        id: identityCardId,
+        type: req.body.type,
+        series: req.body.series,
+        number: req.body.number,
+        issuedBy: req.body.issuedBy,
+        issuedDate: req.body.issuedDate,
+        expirationDate: req.body.expirationDate,
+        socialSecurityNumber: req.body.socialSecurityNumber,
+        ClientId: clientId,
+      });
+
+      await Address.create({
+        id: adressId,
+        street: req.body.street,
+        city: req.body.city,
+        county: req.body.county,
+        zip_code: req.body.zip_code,
+        ClientId: clientId,
+      });
+
+      return res
+        .status(201)
+        .json({ message: "Client registered with success" });
+    } catch (err) {
+      console.warn(err.stack);
     }
-
-    //regex pt cnp
-    let cnp = `^[1-9]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(0[1-9]|[1-4]\d|5[0-2]|99)(00[1-9]|0[1-9]\d|[1-9]\d\d)\d$`;
-
-    //TODO DE ADAUGAT VALIDARI AFERENTE
-    //    if (Object.keys(req.body).length !== 3 || !req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('category') || !req.body.hasOwnProperty('calories')) {
-    //      return res.status(400).json({ "message": "malformed request" })
-    //}
-
-    await Client.create({
-      id: clientId,
-      last_name: req.body.last_name,
-      first_name: req.body.first_name,
-      previous_name: req.body.previous_name,
-      birth_date: req.body.birth_date,
-      phone: req.body.phone,
-      email: req.body.email,
-      license_type: req.body.license_type,
-      userId: req.body.userId,
-      instructor_id: req.body.instructor_id,
-      is_active: req.body.is_active,
-    });
-    await identityCard.create({
-      id: identityCardId,
-      type: req.body.type,
-      series: req.body.series,
-      number: req.body.number,
-      issuedBy: req.body.issuedBy,
-      issuedDate: req.body.issuedDate,
-      expirationDate: req.body.expirationDate,
-      socialSecurityNumber: req.body.socialSecurityNumber,
-      ClientId: clientId,
-    });
-
-    await Address.create({
-      id: adressId,
-      street: req.body.street,
-      city: req.body.city,
-      county: req.body.county,
-      zip_code: req.body.zip_code,
-      ClientId: clientId,
-    });
-
-    return res.status(201).json({ message: "Client registered with success" });
-  } catch (err) {
-    console.warn(err.stack);
   }
-});
+);
 
 router.route("/clients/:id").put((req, res) => {
   Client.findByPk(req.params.id).then((record) => {
@@ -387,7 +394,7 @@ router.route("/clients/:id").put((req, res) => {
         email: req.body.email,
         license_type: req.body.license_type,
         user_id: req.body.user_id,
-        instructor_id: req.body.instructor_id,
+        employeeId: req.body.employeeId,
         is_active: req.body.is_active,
       })
       .then((response) => res.json(response));
@@ -454,6 +461,38 @@ router.route("/reservations").get((req, res) => {
     .catch((err) => console.log(err));
 });
 
+router.route("/reservationsByInstructor/:employeeId").get((req, res) => {
+  reservation
+    .findAll({
+      where: {
+        employeeId: req.params.employeeId,
+      },
+    })
+    .then((result) => res.json(result));
+});
+
+router
+  .route("/reservationsaAndrequestsByInstructor/:employeeId")
+  .get(async (req, res) => {
+    try {
+      const arr1 = await reservation.findAll({
+        where: {
+          employeeId: req.params.employeeId,
+        },
+      });
+
+      const arr2 = await request.findAll({
+        where: {
+          employeeId: req.params.employeeId,
+        },
+      });
+
+      return res.json(arr1.concat(arr2));
+    } catch (err) {
+      console.log(err.toString());
+    }
+  });
+
 router.route("/reservationsById/:id").get((req, res) => {
   reservation.findByPk(req.params.id).then((result) => res.json(result));
 });
@@ -461,12 +500,12 @@ router.route("/reservationsById/:id").get((req, res) => {
 router.route("/reservations").post((req, res) => {
   reservation
     .create({
-      request_id: req.body.request_id,
-      vehicle_id: req.body.vehicle_id,
-      staff_id: req.body.staff_id,
-      reservation_date: req.body.reservation_date,
-      reservation_status_id: req.body.reservation_status_id,
-      driving_lesson_id: req.body.driving_lesson_id,
+      title: req.body.title,
+      employeeId: req.body.employeeId,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      state: req.body.state,
+      ClientId: req.body.ClientId,
     })
     .then((response) => res.json(response));
 });
@@ -558,15 +597,30 @@ router.route("/requests/:id").get((req, res) => {
   request.findByPk(req.params.id).then((result) => res.json(result));
 });
 
+router.route("/requestsByInstructor/:employeeId").get((req, res) => {
+  request
+    .findAll({
+      where: {
+        employeeId: req.params.employeeId,
+      },
+    })
+    .then((result) => res.json(result));
+});
+
 router.route("/requests").post((req, res) => {
   request
     .create({
-      client_id: req.body.client_id,
+      employeeId: req.body.employeeId,
+      title: req.body.title,
       service_id: req.body.service_id,
       vehicle_id: req.body.vehicle_id,
-      date_requested: req.body.date_requested,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      state: "waiting",
+      ClientId: req.body.ClientId,
     })
-    .then((response) => res.json(response));
+    .then((response) => res.json(response))
+    .catch((err) => console.log(err));
 });
 
 router.route("/requests/:id").put((req, res) => {
@@ -616,7 +670,7 @@ router.route("/employees").post((req, res) => {
       phone: req.body.phone,
       email: req.body.email,
       job_title_id: req.body.job_title_id,
-      user_id: req.body.user_id,
+      userId: req.body.userId,
       is_active: req.body.is_active,
     })
     .then((response) => res.json(response));
@@ -633,7 +687,7 @@ router.route("/employees/:id").put((req, res) => {
         phone: req.body.phone,
         email: req.body.email,
         job_title_id: req.body.job_title_id,
-        user_id: req.body.user_id,
+        userId: req.body.userId,
         is_active: req.body.is_active,
       })
       .then((response) => res.json(response));

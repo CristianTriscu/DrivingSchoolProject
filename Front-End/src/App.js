@@ -10,11 +10,12 @@ import NewClientForm from './Components/newClientForm/NewClientForm'
 import Footer from './Components/Footer/Footer'
 import ParcAuto from './Components/ParcAuto/ParcAuto'
 import ClientReservation from './Components/Reservation/ClientReservation';
+export const clientDetails=JSON.parse(localStorage.getItem("client"));
 
 class App extends Component {
 
   render() {
-    const clientRole=JSON.parse(localStorage.getItem("client"));
+
  
    // console.log(clientRole.result.role)
 
@@ -33,7 +34,7 @@ class App extends Component {
 
           <Route path="/Reservation" exact={true} component={() => {
            
-            return   clientRole.result.role === "client" ?  
+            return   clientDetails.result.role === "client" ?  
             (<div className="App"> <Navbar  isAuth={true}/><ClientReservation/><Footer/></div>):
             (<div>No acces! </div>)
         

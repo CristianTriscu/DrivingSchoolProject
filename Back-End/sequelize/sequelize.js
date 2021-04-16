@@ -64,10 +64,6 @@ export const Client = sequelize.define("Clients", {
   license_type: {
     type: Sequelize.STRING,
   },
-
-  instructor_id: {
-    type: Sequelize.INTEGER,
-  },
   is_active: {
     type: Sequelize.BOOLEAN,
   },
@@ -106,12 +102,12 @@ export const reservation = sequelize.define("reservations", {
     primaryKey: true,
     allowNull: true,
   },
-  request_id: { type: Sequelize.INTEGER },
-  vehicle_id: { type: Sequelize.INTEGER },
-  staff_id: { type: Sequelize.INTEGER },
-  reservation_date: { type: Sequelize.DATE },
-  reservation_status_id: { type: Sequelize.INTEGER },
-  driving_lesson_id: { type: Sequelize.INTEGER },
+ 
+  startDate: { type: Sequelize.DATE },
+  endDate:{type:Sequelize.DATE},
+  state:{type:Sequelize.STRING},
+  title:{type:Sequelize.STRING},
+
 });
 
 export const driving_lesson_service = sequelize.define(
@@ -137,10 +133,13 @@ export const request = sequelize.define("requests", {
     primaryKey: true,
     allowNull: true,
   },
-  client_id: { type: Sequelize.INTEGER },
-  service_id: { type: Sequelize.DECIMAL(12, 5) },
+  
+  title: { type: Sequelize.STRING },
+  service_id: { type: Sequelize.INTEGER },
   vehicle_id: { type: Sequelize.INTEGER },
-  date_requested: { type: Sequelize.DATE },
+  startDate: { type: Sequelize.DATE },
+  endDate: { type: Sequelize.DATE },
+  state:{type:Sequelize.STRING},
 });
 
 export const employee = sequelize.define("employees", {
@@ -170,9 +169,6 @@ export const employee = sequelize.define("employees", {
     type: Sequelize.STRING,
   },
   job_title_id: {
-    type: Sequelize.INTEGER,
-  },
-  user_id: {
     type: Sequelize.INTEGER,
   },
   is_active: {
@@ -255,14 +251,22 @@ export const vehicle = sequelize.define("vehicles", {
 //user.hasMany(Client,{foreignKey:"id",foreignKeyConstraint:true});
 //Client.belongsTo(user,{foreignKey:"id"});
 
-Client.hasMany(request);
+
 Client.hasOne(identityCard);
 Client.hasOne(Address);
-Client.hasOne(employee);
+
+
+
 employee.hasOne(Address);
 
-request.hasOne(reservation);
-vehicle.hasMany(reservation);
+employee.hasMany(request);
+employee.hasMany(reservation);
+employee.hasMany(Client);
+
+Client.hasMany(reservation);
+Client.hasMany(request);
+
+
 request.hasOne(request_status);
 user.hasOne(Client);
 user.hasOne(employee);
@@ -270,7 +274,7 @@ employee.hasOne(job_title);
 Client.hasMany(license_type);
 
 // request.hasOne(vehicle_type)
-reservation.hasOne(reservation_status);
+
 // reservation.hasOne(vehicle)
 reservation.hasOne(driving_lesson_service);
 

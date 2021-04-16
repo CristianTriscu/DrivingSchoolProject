@@ -15,13 +15,10 @@ import ErrorIcon from "@material-ui/icons/Error";
 import VisibilityTwoToneIcon from "@material-ui/icons/VisibilityTwoTone";
 import VisibilityOffTwoToneIcon from "@material-ui/icons/VisibilityOffTwoTone";
 import CloseIcon from "@material-ui/icons/Close";
-
-import "../../../src/App.css";
-
 import { withRouter } from "react-router-dom";
 
 function shoot() {
-  alert("test!");
+  alert("succes!");
 }
 class Login extends Component {
   state = {
@@ -109,6 +106,7 @@ class Login extends Component {
                   <Input
                     name="email"
                     type="email"
+                    defaultValue="triscu.cristian2@gmail.com"
                     autoComplete="email"
                     className={classes.inputs}
                     disableUnderline={true}
@@ -122,6 +120,7 @@ class Login extends Component {
                   </InputLabel>
                   <Input
                     name="password"
+                    defaultValue="Parola321"
                     autoComplete="password"
                     className={classes.inputs}
                     disableUnderline={true}

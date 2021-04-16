@@ -111,7 +111,7 @@ export default function PrimarySearchAppBar(props) {
     if (props !== null && props.isAuth == true) {
       setLogIn(true);
     }
-  }, []);
+  });
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
