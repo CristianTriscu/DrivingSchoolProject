@@ -11,13 +11,17 @@ import {
   request_status,
   license_type,
   vehicle,
-  vehicle_type,
+  
   user,
   identityCard,
+  message,
+
 } from "./sequelize/sequelize.js";
 import permit from "./authorization/authorization.js";
-
+import getMessages from "./Messages.js"
 import jsonwebtoken from "jsonwebtoken";
+import e from "express";
+
 
 const jwt = jsonwebtoken;
 
@@ -178,7 +182,7 @@ router.route("/users/:id").put((req, res) => {
         username: req.body.username,
         email: req.body.email,
         password: req.body.password,
-        role:req.body.role,
+        role: req.body.role,
       },
       {
         where: {
@@ -262,6 +266,23 @@ router.route("/clientsById/:id").get((req, res) => {
   Client.findByPk(req.params.id)
     .then((result) => res.json(result))
     .catch((err) => console.log(err));
+});
+
+router.route("/ClientByUserId/:userId").get(async (req, res) => {
+  try {
+    const clientInfo = await Client.findOne({
+      where: {
+        userId: req.params.userId,
+      },
+    });
+    if (clientInfo) {
+      res.status(200).json(clientInfo);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
 });
 
 router.route("/clients").post((req, res) => {
@@ -619,8 +640,10 @@ router.route("/requests").post((req, res) => {
       state: "waiting",
       ClientId: req.body.ClientId,
     })
-    .then((response) => res.json(response))
-    .catch((err) => console.log(err));
+    .then((response) => res.status(200).json(response))
+    .catch((err) => {
+      res.status(400), console.log(err);
+    });
 });
 
 router.route("/requests/:id").put((req, res) => {
@@ -642,10 +665,84 @@ router.route("/requests/:id").delete((req, res) => {
     .then((record) => {
       record.destroy();
     })
-    .then(() => res.sendStatus(200));
+    .then(() => res.status(200).json({ message: "deleted" }));
+});
+
+router.route("/cancelReservation/:id/:clientId").delete(async (req, res) => {
+  try {
+    /*TODO
+    cand sterg o rezervare sa creez un mesaj "rezervare stearsa"
+    //sa pun o conditie gen if( date.now - startingDate < 1 zi ) => nu pot sterge else => sterge cu succes, operatia de mai sus 
+    */
+    let date = new Date();
+    let reservationToBeDeleted = await reservation.findByPk(req.params.id);
+    if (reservationToBeDeleted) {
+      let differenceInDays = (date.getTime()-reservationToBeDeleted.startDate.getTime())/(1000 * 3600 * 24)
+      if( differenceInDays >= 2){
+      await reservationToBeDeleted.destroy();
+      await message.create({
+        content: `Reservation was canceled on ${date.toLocaleDateString()}`,
+        ClientId: req.params.clientId,
+      })
+      res.status(200).json({message:"accepted"})
+    }else{
+      res.status(403).json({message:"Must be at least 2 days difference to cancel the reservation. "})
+    }
+    } else {
+      res.status(404).json({message:"not found"})
+    }
+  } catch (er) {
+    console.warn(er);
+  }
+});
+
+router.route("/makeRequestReservation/:id").delete(async (req, res) => {
+  try {
+    let solicitation = await request.findByPk(req.params.id);
+    if (solicitation) {
+      let reservation_ = await reservation.create({
+        employeeId: solicitation.employeeId,
+        title: solicitation.title,
+        service_id: solicitation.service_id,
+        vehicle_id: solicitation.vehicle_id,
+        startDate: solicitation.startDate,
+        endDate: solicitation.endDate,
+        state: "accepted",
+        ClientId: solicitation.ClientId,
+      });
+      await solicitation.destroy();
+      const date = new Date(reservation_.startDate);
+      const date2 = new Date(reservation.endDate);
+
+      let minutes = null;
+      let minutes2 = null;
+      date.getMinutes() === 0
+        ? (minutes = `${date.getMinutes()}${date.getMinutes()}`)
+        : (minutes = `${date.getMinutes()}`);
+
+        date2.getMinutes() === 0
+        ? (minutes = `${date2.getMinutes()}${date2.getMinutes()}`)
+        : (minutes = `${date2.getMinutes()}`);
+      await message.create({
+        content: `Reservation accepted for ${date.toLocaleDateString()}. Starting hour: ${date.getHours()}:${minutes} - Ending hour: ${date2.getHours()}:${minutes2}`,
+        ClientId: reservation_.ClientId,
+      });
+      res.status(200).json({ message: "accepted" });
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
 });
 
 // --------Requests------end-----//
+
+// -------- Messages ----------//
+
+
+
+// --------- Messages ---- end //
 
 // ----Employees---------//
 
@@ -654,6 +751,19 @@ router.route("/employees").get((req, res) => {
     .findAll()
     .then((result) => res.json(result))
     .catch((err) => console.log(err));
+});
+
+router.route("/employeeByUserId/:userId").get(async (req, res) => {
+  const employee_ = await employee.findOne({
+    where: {
+      userId: req.params.userId,
+    },
+  });
+  if (employee_) {
+    res.status(200).json(employee_);
+  } else {
+    res.status(404).json({ message: "not found" });
+  }
 });
 
 router.route("/employees/:id").get((req, res) => {
@@ -885,6 +995,60 @@ router.route("/vehicles").get((req, res) => {
     .findAll()
     .then((result) => res.json(result))
     .catch((err) => console.log(err));
+});
+
+router.route("/vehiclesB").get(async (req,res)=>{
+  try{
+    const vehiclesB = await vehicle.findAll({
+      where:{
+        vehicle_type:'B'
+      }
+    });
+    if(vehiclesB){
+      res.status(200).json(vehiclesB);
+    }else{
+      res.status(400).json({message:"not found"})
+    }
+  }
+  catch(e){
+    console.warn(e);
+  }
+});
+
+router.route("/vehiclesC").get(async (req,res)=>{
+  try{
+    const vehiclesC = await vehicle.findAll({
+      where:{
+        vehicle_type:'C'
+      }
+    });
+    if(vehiclesC){
+      res.status(200).json(vehiclesC);
+    }else{
+      res.status(400).json({message:"not found"})
+    }
+  }
+  catch(e){
+    console.warn(e);
+  }
+});
+
+router.route("/vehiclesD").get(async (req,res)=>{
+  try{
+    const vehiclesD = await vehicle.findAll({
+      where:{
+        vehicle_type:'D'
+      }
+    });
+    if(vehiclesB){
+      res.status(200).json(vehiclesD);
+    }else{
+      res.status(400).json({message:"not found"})
+    }
+  }
+  catch(e){
+    console.warn(e);
+  }
 });
 
 router.route("/vehicles/:id").get((req, res) => {

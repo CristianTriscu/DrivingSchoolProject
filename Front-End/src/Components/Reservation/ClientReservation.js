@@ -4,18 +4,15 @@ import { ViewState, EditingState } from "@devexpress/dx-react-scheduler";
 import {
   Scheduler,
   Toolbar,
-  MonthView,
   WeekView,
   ViewSwitcher,
   Appointments,
   AppointmentTooltip,
-  AppointmentForm,
   EditRecurrenceMenu,
   DayView,
   DateNavigator,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { connectProps } from "@devexpress/dx-react-core";
-import { clientDetails } from "../../App";
 import AppointmentFormv2 from "./AppointmentFormv2";
 import { withStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -24,13 +21,11 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
-import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
 import AppointmentFormContainer from "./AppointmentForm";
-import { appointments } from "../../assets/dateProgramariTEST";
-import server from "../../ServerName/ServerName"
-
-console.log(appointments)
+import server from "../../ServerName/ServerName";
+import WaitingList from "./WaitingList";
+import { Typography } from "@material-ui/core";
+import CallIcon from "@material-ui/icons/Call";
 
 const styles = (theme) => ({
   addButton: {
@@ -47,6 +42,7 @@ const styles = (theme) => ({
   },
   paper: {
     padding: 20,
+    marginBottom: 2,
     textAlign: "center",
     color: "black",
   },
@@ -59,6 +55,36 @@ const styles = (theme) => ({
   },
 });
 
+// const Header = withStyles(style, { name: "Header" })(
+//   ({ appointmentData, ...restProps }) => (
+//     <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
+//       {clientDetails.result.role === "client" ? (
+//         <div>
+//           <IconButton
+//             /* eslint-disable-next-line no-alert */
+//             onClick={() => alert("accepted")}
+//           >
+//             <CheckCircleIcon />
+//           </IconButton>
+//           <IconButton
+//             /* eslint-disable-next-line no-alert */
+//             onClick={() => alert("denied")}
+//           >
+//             <HighlightOffIcon />
+//           </IconButton>
+//         </div>
+//       ) : (
+//         <IconButton
+//           /* eslint-disable-next-line no-alert */
+//           onClick={() => alert("implementeaza delete")}
+//         >
+//           <DeleteIcon />
+//         </IconButton>
+//       )}
+//     </AppointmentTooltip.Header>
+//   )
+// );
+
 const CustomAppointment = ({ style, ...restProps }) => {
   if (restProps.data.state === "unavailable")
     return (
@@ -66,7 +92,7 @@ const CustomAppointment = ({ style, ...restProps }) => {
         {...restProps}
         style={{ ...style, backgroundColor: "red" }}
         className="unavailable"
-      />
+      ></Appointments.Appointment>
     );
   if (restProps.data.state === "accepted")
     return (
@@ -79,7 +105,6 @@ const CustomAppointment = ({ style, ...restProps }) => {
   return (
     <Appointments.Appointment
       {...restProps}
-      
       style={{ ...style, backgroundColor: "orange" }}
       className="waiting"
     ></Appointments.Appointment>
@@ -90,6 +115,7 @@ class Demo extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      employeeInfo: {},
       data: [],
       currentViewName: "Day",
       currentDate: "2018-06-27",
@@ -103,46 +129,62 @@ class Demo extends React.PureComponent {
       endDayHour: 20,
       isNewAppointment: false,
     };
+
     this.currentViewNameChange = (currentViewName) => {
       this.setState({ currentViewName });
     };
     this.toggleConfirmationVisible = this.toggleConfirmationVisible.bind(this);
     this.commitDeletedAppointment = this.commitDeletedAppointment.bind(this);
-    this.toggleEditingFormVisibility = this.toggleEditingFormVisibility.bind(
-      this
-    );
+    this.toggleEditingFormVisibility =
+      this.toggleEditingFormVisibility.bind(this);
     this.currentDateChange = (currentDate) => {
       this.setState({ currentDate });
     };
 
     this.loadData = async (instructorId) => {
-      try{
+      try {
         const requestOptions = {
           method: "GET",
           headers: { "Content-Type": "application/json" },
-        }
-        const response = await fetch(server+"reservationsaAndrequestsByInstructor/"+instructorId,requestOptions);
+        };
+        const response = await fetch(
+          server + "reservationsaAndrequestsByInstructor/" + instructorId,
+          requestOptions
+        );
         const data = await response.json();
-  
-        if(data){
+
+        if (data) {
           this.setState({
-            data:data
-          })
-          console.log(data)
-        }else
-        console.log("ceva nu e bine")
-      }
-      catch(err){
+            data: data,
+          });
+          //console.log(data);
+        } else console.log("ceva nu e bine");
+      } catch (err) {
         alert(err.toString());
       }
-  
     };
-  
+
+    this.loadEmployeeData = async (id) => {
+      try {
+        const requestOptions = {
+          method: "GET",
+          header: { "Content-Type": "application/json" },
+        };
+        const request = await fetch(server + "employees/" + id, requestOptions);
+        const data = await request.json();
+        if (data) {
+          this.setState({
+            employeeInfo: data,
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
     this.commitChanges = this.commitChanges.bind(this);
-    this.onEditingAppointmentChange = this.onEditingAppointmentChange.bind(
-      this
-    );
+    this.onEditingAppointmentChange =
+      this.onEditingAppointmentChange.bind(this);
     this.onAddedAppointmentChange = this.onAddedAppointmentChange.bind(this);
     this.appointmentForm = connectProps(AppointmentFormContainer, () => {
       const {
@@ -179,10 +221,17 @@ class Demo extends React.PureComponent {
     });
   }
 
-  componentDidMount(){
+  componentDidMount() {
+    // if (clientDetails.result.role === "client") {
+    //   this.loadEmployeeData(clientInfo.employeeId);
+    //   this.loadData(clientInfo.employeeId);
+    // } else {
+    //   this.loadData(employeeInfo.id);
+    // }
+    this.loadEmployeeData(6);
     this.loadData(6);
   }
- 
+
   componentDidUpdate() {
     this.appointmentForm.update();
   }
@@ -206,6 +255,49 @@ class Demo extends React.PureComponent {
     this.setState({ deletedAppointmentId: id });
   }
 
+  DeleteAppointmentById = async (id) => {
+    try {
+      const requestOptions = {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      };
+      const response = await fetch(server + "requests/" + id, requestOptions);
+      const data = await response.json();
+
+      console.log(data);
+
+      if (data.message === "deleted" && response.status === 200) {
+        this.loadData(6);
+      } else {
+        alert("Server error");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  acceptRequest = async (id) => {
+    try {
+      const requestOptions = {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      };
+      const response = await fetch(
+        server + "makeRequestReservation/" + id,
+        requestOptions
+      );
+      const data = await response.json();
+
+      if (data.message === "accepted" && response.status === 200) {
+        this.loadData(6);
+      } else {
+        alert("Server error");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   toggleEditingFormVisibility() {
     const { editingFormVisible } = this.state;
     this.setState({
@@ -218,9 +310,11 @@ class Demo extends React.PureComponent {
     this.setState({ confirmationVisible: !confirmationVisible });
   }
 
-  commitDeletedAppointment() {
+  commitDeletedAppointment = async () => {
     this.setState((state) => {
       const { data, deletedAppointmentId } = state;
+
+      this.DeleteAppointmentById(deletedAppointmentId);
       const nextData = data.filter(
         (appointment) => appointment.id !== deletedAppointmentId
       );
@@ -228,7 +322,7 @@ class Demo extends React.PureComponent {
       return { data: nextData, deletedAppointmentId: null };
     });
     this.toggleConfirmationVisible();
-  }
+  };
 
   commitChanges({ added, changed, deleted }) {
     this.setState((state) => {
@@ -254,7 +348,15 @@ class Demo extends React.PureComponent {
   }
 
   render() {
+    const clientDetails = JSON.parse(localStorage.getItem("client"));
+    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+    const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
+    console.log("clientDetails here");
     console.log(clientDetails);
+    console.log("employeeInfo here");
+    console.log(employeeInfo);
+    console.log("client info here");
+    console.log(clientInfo);
     const {
       currentDate,
       data,
@@ -264,12 +366,48 @@ class Demo extends React.PureComponent {
       endDayHour,
     } = this.state;
     const { classes } = this.props;
-
+ 
     return (
+     
       <div className={classes.bg}>
+        {clientDetails.result.role === "client" ? (
+          <Paper className={classes.paper}>
+            <Typography>{`Bun venit, ${"Cristian"} ${"Triscu"}!`}</Typography>
+            <Typography>{`Puteți folosi următoarea rubrică pentru a solicita o ședință`}</Typography>
+            <Typography displayInline variant="h8" color="primary">
+              {`Instructor: ${this.state.employeeInfo.first_name} ${this.state.employeeInfo.last_name} `}
+              <span itemprop="telephone">
+                <Button
+                  style={{ marginLeft: "1rem", backgroundColor: "#9B9DC0" }}
+                >
+                  <CallIcon color="primary" />
+                  <div style={{ width: "0.3rem" }}></div>
+                  <a href="tel:123-456-7890">{this.state.employeeInfo.phone}</a>
+                </Button>
+              </span>
+            </Typography>
+          </Paper>
+        ) : (
+          <Paper className={classes.paper}>
+            <Typography>{`Bun venit, ${employeeInfo.last_name} ${employeeInfo.first_name}`}</Typography>
+            <Typography variant="h8" color="secondary">
+              Accesați lista de așteptare pentru a accepta/respinge solicitarile
+              cursanților
+            </Typography>
+          </Paper>
+        )}
         <Paper>
           <Scheduler data={data} locale={"en-US"} minHeight="100vh">
-            <AppointmentFormv2></AppointmentFormv2>
+            {clientDetails.result.role === "client" ? (
+              <AppointmentFormv2 loadData={this.loadData}></AppointmentFormv2>
+            ) : (
+              <WaitingList
+                acceptRequest={this.acceptRequest}
+                deleteRequest={this.DeleteAppointmentById}
+                data={data}
+              ></WaitingList>
+            )}
+
             <ViewState
               currentDate={currentDate}
               currentViewName={this.state.currentViewName}
@@ -285,26 +423,22 @@ class Demo extends React.PureComponent {
             <WeekView startDayHour={startDayHour} endDayHour={endDayHour} />
 
             <EditRecurrenceMenu />
-            <Appointments appointmentComponent={CustomAppointment} />
-            
-            {/*de revenit aici*/}
-            <AppointmentTooltip
-              showOpenButton
-              showCloseButton
-              showDeleteButton
+            <Appointments
+              loadData={this.loadData}
+              appointmentComponent={CustomAppointment}
             />
+
+            {!clientDetails.result.role === "client" ? (
+              <AppointmentTooltip
+                showDeleteButton
+                showCloseButton
+              ></AppointmentTooltip>
+            ) : (
+              <AppointmentTooltip showCloseButton></AppointmentTooltip>
+            )}
             <Toolbar />
             <DateNavigator></DateNavigator>
             <ViewSwitcher />
-
-            {clientDetails.result.role === "client"
-              ? // <AppointmentForm
-                //   overlayComponent={this.appointmentForm}
-                //   visible={editingFormVisible}
-                //   onVisibilityChange={this.toggleEditingFormVisibility}
-                // />
-                null
-              : null}
           </Scheduler>
 
           <Dialog open={confirmationVisible} onClose={this.cancelDelete}>
@@ -331,21 +465,6 @@ class Demo extends React.PureComponent {
               </Button>
             </DialogActions>
           </Dialog>
-
-          <Fab
-            color="secondary"
-            className={classes.addButton}
-            onClick={() => {
-              this.setState({ editingFormVisible: true });
-              this.onEditingAppointmentChange(undefined);
-              this.onAddedAppointmentChange({
-                startDate: new Date(currentDate).setHours(startDayHour),
-                endDate: new Date(currentDate).setHours(startDayHour + 1),
-              });
-            }}
-          >
-            <AddIcon />
-          </Fab>
         </Paper>
       </div>
     );

@@ -15,9 +15,8 @@ import ErrorIcon from "@material-ui/icons/Error";
 import VisibilityTwoToneIcon from "@material-ui/icons/VisibilityTwoTone";
 import VisibilityOffTwoToneIcon from "@material-ui/icons/VisibilityOffTwoTone";
 import CloseIcon from "@material-ui/icons/Close";
-import server from "../../ServerName/ServerName"
-import "../../../src/App.css"
-
+import server from "../../ServerName/ServerName";
+import "../../../src/App.css";
 
 class Registration extends Component {
   state = {
@@ -30,25 +29,24 @@ class Registration extends Component {
     matchPasswords: false,
     errorOpen: false,
     registerCompleted: false,
-
   };
 
-  errorClose = e => {
+  errorClose = (e) => {
     this.setState({
-      errorOpen: false
+      errorOpen: false,
     });
   };
 
-  handleChange = name => e => {
+  handleChange = (name) => (e) => {
     this.setState({
-      [name]: e.target.value
+      [name]: e.target.value,
     });
   };
 
   passwordMatch = () => this.state.password === this.state.passwordConfirm;
 
   showPassword = () => {
-    this.setState(prevState => ({ hidePassword: !prevState.hidePassword }));
+    this.setState((prevState) => ({ hidePassword: !prevState.hidePassword }));
   };
 
   isValid = () => {
@@ -62,47 +60,42 @@ class Registration extends Component {
     if (!this.passwordMatch()) {
       this.setState({
         errorOpen: true,
-        error: "Passwords don't match"
+        error: "Passwords don't match",
       });
-      return
+      return;
     }
     const newUserCredentials = {
       email: this.state.email,
       username: this.state.username,
       password: this.state.password,
-      passwordConfirm: this.state.passwordConfirm
+      passwordConfirm: this.state.passwordConfirm,
     };
     console.log("this.props.newUserCredentials", newUserCredentials);
     //dispath to userActions
 
     const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: this.state.username, email: this.state.email, password: this.state.password })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: this.state.username,
+        email: this.state.email,
+        password: this.state.password,
+      }),
     };
     const response = await fetch(server + "users", requestOptions);
     const data = await response.json();
 
-
     if (data.message === "Registration successfully") {
       this.setState({
-
-        registerCompleted: true
-
-      })
-
-
+        registerCompleted: true,
+      });
     } else {
-
-
       this.setState({
         registerCompleted: false,
         errorOpen: true,
-        error: data.message
-      })
+        error: data.message,
+      });
     }
-
-
   };
 
   render() {
@@ -124,7 +117,7 @@ class Registration extends Component {
                 <FormControl required fullWidth margin="normal">
                   <InputLabel htmlFor="email" className={classes.labels}>
                     e-mail
-              </InputLabel>
+                  </InputLabel>
                   <Input
                     name="email"
                     type="email"
@@ -138,7 +131,7 @@ class Registration extends Component {
                 <FormControl required fullWidth margin="normal">
                   <InputLabel htmlFor="Username" className={classes.labels}>
                     username
-              </InputLabel>
+                  </InputLabel>
                   <Input
                     name="Username"
                     type="Username"
@@ -149,11 +142,10 @@ class Registration extends Component {
                   />
                 </FormControl>
 
-
                 <FormControl required fullWidth margin="normal">
                   <InputLabel htmlFor="password" className={classes.labels}>
                     password
-              </InputLabel>
+                  </InputLabel>
                   <Input
                     name="password"
                     autoComplete="password"
@@ -171,22 +163,25 @@ class Registration extends Component {
                           />
                         </InputAdornment>
                       ) : (
-                          <InputAdornment position="end">
-                            <VisibilityTwoToneIcon
-                              fontSize="default"
-                              className={classes.passwordEye}
-                              onClick={this.showPassword}
-                            />
-                          </InputAdornment>
-                        )
+                        <InputAdornment position="end">
+                          <VisibilityTwoToneIcon
+                            fontSize="default"
+                            className={classes.passwordEye}
+                            onClick={this.showPassword}
+                          />
+                        </InputAdornment>
+                      )
                     }
                   />
                 </FormControl>
 
                 <FormControl required fullWidth margin="normal">
-                  <InputLabel htmlFor="passwordConfirm" className={classes.labels}>
+                  <InputLabel
+                    htmlFor="passwordConfirm"
+                    className={classes.labels}
+                  >
                     confirm password
-              </InputLabel>
+                  </InputLabel>
                   <Input
                     name="passwordConfirm"
                     autoComplete="passwordConfirm"
@@ -205,14 +200,14 @@ class Registration extends Component {
                           />
                         </InputAdornment>
                       ) : (
-                          <InputAdornment position="end">
-                            <VisibilityTwoToneIcon
-                              fontSize="default"
-                              className={classes.passwordEye}
-                              onClick={this.showPassword}
-                            />
-                          </InputAdornment>
-                        )
+                        <InputAdornment position="end">
+                          <VisibilityTwoToneIcon
+                            fontSize="default"
+                            className={classes.passwordEye}
+                            onClick={this.showPassword}
+                          />
+                        </InputAdornment>
+                      )
                     }
                   />
                 </FormControl>
@@ -226,16 +221,15 @@ class Registration extends Component {
                   onClick={this.submitRegistration}
                 >
                   Join
-            </Button>
+                </Button>
               </form>
               {this.state.error ? (
-
                 <Snackbar
                   variant="error"
                   key={this.state.error}
                   anchorOrigin={{
                     vertical: "bottom",
-                    horizontal: "center"
+                    horizontal: "center",
                   }}
                   open={this.state.errorOpen}
                   onClose={this.errorClose}
@@ -258,31 +252,19 @@ class Registration extends Component {
                         onClick={this.errorClose}
                       >
                         <CloseIcon color="error" />
-                      </IconButton>
+                      </IconButton>,
                     ]}
                   />
                 </Snackbar>
-              ) : null
-
-              }
-
+              ) : null}
             </Paper>
           </div>
-
         </div>
-
       );
+    } else {
+      return <div>Registered successfully</div>;
     }
-    else {
-
-      return (
-        <div>Registered successfully</div>
-      )
-    }
-
   }
-
 }
-
 
 export default withStyles(register)(Registration);

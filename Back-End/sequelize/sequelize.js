@@ -95,6 +95,16 @@ export const job_title = sequelize.define("job_titles", {
   job_description: { type: Sequelize.STRING },
 });
 
+export const message = sequelize.define("messages", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  content:{type:Sequelize.STRING},
+
+});
+
 export const reservation = sequelize.define("reservations", {
   id: {
     type: Sequelize.INTEGER,
@@ -102,12 +112,11 @@ export const reservation = sequelize.define("reservations", {
     primaryKey: true,
     allowNull: true,
   },
- 
-  startDate: { type: Sequelize.DATE },
-  endDate:{type:Sequelize.DATE},
-  state:{type:Sequelize.STRING},
-  title:{type:Sequelize.STRING},
 
+  startDate: { type: Sequelize.DATE },
+  endDate: { type: Sequelize.DATE },
+  state: { type: Sequelize.STRING },
+  title: { type: Sequelize.STRING },
 });
 
 export const driving_lesson_service = sequelize.define(
@@ -133,13 +142,13 @@ export const request = sequelize.define("requests", {
     primaryKey: true,
     allowNull: true,
   },
-  
+
   title: { type: Sequelize.STRING },
   service_id: { type: Sequelize.INTEGER },
   vehicle_id: { type: Sequelize.INTEGER },
   startDate: { type: Sequelize.DATE },
   endDate: { type: Sequelize.DATE },
-  state:{type:Sequelize.STRING},
+  state: { type: Sequelize.STRING },
 });
 
 export const employee = sequelize.define("employees", {
@@ -174,6 +183,9 @@ export const employee = sequelize.define("employees", {
   is_active: {
     type: Sequelize.BOOLEAN,
   },
+  image_url:{
+    type: Sequelize.STRING
+  }
 });
 
 export const reservation_status = sequelize.define("resevations_statuses", {
@@ -210,17 +222,7 @@ export const license_type = sequelize.define("license_types", {
   },
 });
 
-export const vehicle_type = sequelize.define("vehicle_types", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-    allowNull: true,
-  },
-  description: {
-    type: Sequelize.STRING,
-  },
-});
+
 
 export const user = sequelize.define("users", {
   id: {
@@ -242,20 +244,18 @@ export const vehicle = sequelize.define("vehicles", {
     primaryKey: true,
     allowNull: true,
   },
-  vehicle_type_id: { type: Sequelize.INTEGER },
+  vehicle_type: { type: Sequelize.STRING },
   make: { type: Sequelize.STRING },
   model: { type: Sequelize.STRING },
   license_plate: { type: Sequelize.STRING },
+  image_url:{type:Sequelize.STRING}
 });
 
 //user.hasMany(Client,{foreignKey:"id",foreignKeyConstraint:true});
 //Client.belongsTo(user,{foreignKey:"id"});
 
-
 Client.hasOne(identityCard);
 Client.hasOne(Address);
-
-
 
 employee.hasOne(Address);
 
@@ -265,18 +265,16 @@ employee.hasMany(Client);
 
 Client.hasMany(reservation);
 Client.hasMany(request);
-
-
+Client.hasMany(message)
 request.hasOne(request_status);
 user.hasOne(Client);
 user.hasOne(employee);
 employee.hasOne(job_title);
 Client.hasMany(license_type);
 
-// request.hasOne(vehicle_type)
 
-// reservation.hasOne(vehicle)
 reservation.hasOne(driving_lesson_service);
+vehicle.hasOne(employee);
 
 sequelize
   .authenticate()

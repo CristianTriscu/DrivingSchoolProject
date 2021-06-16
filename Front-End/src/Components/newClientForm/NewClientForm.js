@@ -274,7 +274,7 @@ class NewClientForm extends Component {
                     variant="subtitle1"
                     gutterBottom
                   >
-                    Identification data:
+                    Date de identificare:
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
@@ -348,7 +348,7 @@ class NewClientForm extends Component {
                     variant="subtitle1"
                     gutterBottom
                   >
-                    Birthplace:
+                    Locul nașterii:
                   </Typography>
                   <Grid container spacing={2}>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>

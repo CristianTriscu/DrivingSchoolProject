@@ -17,7 +17,10 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import { useHistory } from "react-router-dom";
 import TemporaryDrawer from "../TemporaryDrawer/TemporaryDrawer";
+import server from "../../ServerName/ServerName"
 
+//const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+//const clientId = clientInfo.id;
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -84,10 +87,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PrimarySearchAppBar(props) {
+
+  let usedId = 0;
+  const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+  if (clientInfo) {
+    var clientId = clientInfo.id;
+  }
+
+  const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
+  if (employeeInfo) {
+    var employeeId = employeeInfo.id;
+  }
+  if (clientId) usedId = clientId;
+  else if (employeeId) usedId = employeeId;
+
+
+
   const history = useHistory();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
-
+  const [noOfMessages, setNoOfMessages] =React.useState(0);
   const [isLoggedIn, setLogIn] = useState(false);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -97,6 +116,10 @@ export default function PrimarySearchAppBar(props) {
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleMessagesInbox = () =>[
+    history.push("/Messages")
+  ]
 
   const handleSignOut = (props) => {
     setLogIn(false);
@@ -111,10 +134,32 @@ export default function PrimarySearchAppBar(props) {
     if (props !== null && props.isAuth == true) {
       setLogIn(true);
     }
+    //verificare daca clientul e logat
+    loadNumberOfMessages(usedId);
   });
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
+  };
+
+ 
+  const loadNumberOfMessages = async (id) => {
+    try {
+      const requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      };
+      const response = await fetch(
+        server + "getMessages/" + id,
+        requestOptions
+      );
+      const data = await response.json();
+      if (data) {
+        setNoOfMessages(data.length);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const handleProfileClick = () => {
@@ -149,6 +194,7 @@ export default function PrimarySearchAppBar(props) {
     </Menu>
   );
 
+  
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenuNotLogged = (
     <Menu
@@ -263,37 +309,19 @@ export default function PrimarySearchAppBar(props) {
               variant="h6"
               noWrap
             >
-              Driving School
+              Școala de șoferi online
             </Typography>
 
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ "aria-label": "search" }}
-              />
-            </div>
+           
+           
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-              <IconButton aria-label="show 4 new mails" color="inherit">
-                <Badge badgeContent={2} color="secondary">
+              <IconButton aria-label="show 4 new mails" color="inherit" onClick={handleMessagesInbox}>
+                <Badge badgeContent={noOfMessages} color="secondary">
                   <MailIcon />
                 </Badge>
               </IconButton>
-              <IconButton
-                aria-label="show 17 new notifications"
-                color="inherit"
-              >
-                <Badge badgeContent={10} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+   
               <IconButton
                 edge="end"
                 aria-label="account of current user"
@@ -344,19 +372,8 @@ export default function PrimarySearchAppBar(props) {
             >
               Driving School
             </Typography>
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ "aria-label": "search" }}
-              />
-            </div>
+        
+   
 
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>

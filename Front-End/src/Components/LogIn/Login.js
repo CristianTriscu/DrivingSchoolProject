@@ -54,6 +54,9 @@ class Login extends Component {
     }
     return true;
   };
+
+  
+
   submitSignIn = async (e) => {
     try {
       e.preventDefault();
@@ -70,11 +73,13 @@ class Login extends Component {
       const data = await response.json();
 
       if (data.auth) {
+        localStorage.setItem("driverEmail", JSON.stringify(data.result.email));
+        localStorage.setItem("client", JSON.stringify(data));
+
         this.setState({
           isLoggedIn: true,
         });
-        localStorage.setItem("driverEmail", JSON.stringify(data.result.email));
-        localStorage.setItem("client", JSON.stringify(data));
+     
       } else {
         this.setState({
           errorOpen: true,
@@ -85,6 +90,8 @@ class Login extends Component {
       console.log(err);
     }
   };
+
+  
 
   render() {
     const { classes } = this.props;

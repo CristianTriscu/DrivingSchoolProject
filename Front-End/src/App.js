@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import WelcomePage from './Components/WelcomePage/WelcomePage'
-import Navbar from './Components/Navbar/Navbar'
-import Profile from "./Components/Profile/Profile"
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import WelcomePage from './Components/WelcomePage/WelcomePage';
+import Navbar from './Components/Navbar/Navbar';
+import Profile from "./Components/Profile/Profile";
 import Register from './Components/Register/Register';
-import Login from './Components/LogIn/Login'
+import Login from './Components/LogIn/Login';
 import Dashboard from './Components/DashBoard/DashBoard';
-import NewClientForm from './Components/newClientForm/NewClientForm'
-import Footer from './Components/Footer/Footer'
-import ParcAuto from './Components/ParcAuto/ParcAuto'
+import NewClientForm from './Components/newClientForm/NewClientForm';
+import Footer from './Components/Footer/Footer';
+import ParcAuto from './Components/ParcAuto/ParcAuto';
 import ClientReservation from './Components/Reservation/ClientReservation';
-export const clientDetails=JSON.parse(localStorage.getItem("client"));
+import MsgInbox from './Components/Messages/MsgInbox';
+import GenerateDocuments from './Components/Documents/GenerateDocuments';
+export const clientDetails = JSON.parse(localStorage.getItem("client"));
 
 class App extends Component {
 
   render() {
 
- 
+    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
    // console.log(clientRole.result.role)
 
     return (
@@ -33,14 +35,18 @@ class App extends Component {
           }} />
 
           <Route path="/Reservation" exact={true} component={() => {
+            return <div className="App"> <Navbar  isAuth={true}/><ClientReservation/><Footer/></div>
+          }} />
+         
+          <Route path="/Documents" exact={true} component={()=>{
+            return <div className="App"><Navbar  isAuth={true}/><GenerateDocuments/><Footer/></div>
+          }}/>
            
-            return   clientDetails.result.role === "client" ?  
-            (<div className="App"> <Navbar  isAuth={true}/><ClientReservation/><Footer/></div>):
-            (<div>No acces! </div>)
+          
         
 
           
-          }} />
+         
 
           <Route path="/Register" exact={true} component={() => {
             return (<div className="App"> <Navbar /><Register /><Footer/></div>)
@@ -69,6 +75,10 @@ class App extends Component {
 
           <Route path="/ParcAuto" exact={true} component={() => {
             return (<div className="App"> <Navbar isAuth={true} /><ParcAuto /><Footer/></div>)
+          }} />
+
+          <Route path="/Messages" exact={true} component={() => {
+            return (<div className="App"> <Navbar isAuth={true} /><MsgInbox/><Footer/></div>)
           }} />
 
         </Switch>

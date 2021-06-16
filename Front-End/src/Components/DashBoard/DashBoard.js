@@ -18,10 +18,12 @@ import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import NotInterestedIcon from "@material-ui/icons/NotInterested";
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import {ReactComponent as dashIcon1} from "../../assets/dashIcon1.svg";
-import Icon from "@material-ui/core/Icon";
-import SvgIcon from "@material-ui/core/SvgIcon";
-import InfoIcon from '@material-ui/icons/Info';
+//import { clientDetails } from "../../App";
+import InfoIcon from "@material-ui/icons/Info";
+
+//export const clientDetails = JSON.parse(localStorage.getItem("client"));
+export const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+export const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
 export const styles = (theme) => ({
   root: {
     flexGrow: 1,
@@ -57,14 +59,14 @@ class Dashboard extends Component {
     isClient: false,
   };
 
-  async componentDidMount() {
+  loadUserByEmail = async (email) => {
     try {
       const requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       };
       const response = await fetch(
-        server + "usersByEmail/" + this.props.location.state.email,
+        server + "usersByEmail/" + email,
         requestOptions
       );
       const data = await response.json();
@@ -87,12 +89,84 @@ class Dashboard extends Component {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  loadEmployeeInfo = async (id) => {
+    try {
+      const requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      const response = await fetch(
+        server + "employeeByUserId/" + id,
+        requestOptions
+      );
+
+      const data = await response.json();
+      if (response.status === 200) {
+        const employeeInfo = localStorage.setItem(
+          "employeeInfo",
+          JSON.stringify(data)
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  loadClientInfo = async (id) => {
+    try {
+      const requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      const response = await fetch(
+        server + "ClientByUserId/" + id,
+        requestOptions
+      );
+
+      const data = await response.json();
+      if (response.status === 200) {
+        localStorage.setItem(
+          "clientInfo",
+          JSON.stringify(data)
+       
+        );
+
+      } else if ( data.message === "not found") {
+        localStorage.setItem("clientInfo", 'not found')
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  componentDidMount() {
+
+    const clientDetails = JSON.parse(localStorage.getItem('client'));
+    
+
+    this.loadUserByEmail(this.props.location.state.email);
+ 
+    console.log(clientDetails);
+    if (clientDetails.result.role === "client") {
+      this.loadClientInfo(clientDetails.result.id);
+  
+      
+    } else {
+      this.loadEmployeeInfo(clientDetails.result.id);
+    }
   }
 
   render() {
-    const { classes } = this.props;
-    console.log(this.props);
 
+    
+    const clientDetails = JSON.parse(localStorage.getItem("client"));
+    const { classes } = this.props;
+  
+  
     if (this.props.location.state !== undefined)
       return (
         <div className={classes.bg}>
@@ -108,28 +182,25 @@ class Dashboard extends Component {
                         cerere de înscriere!
                       </Typography>
                     </Grid>
-                    <Grid  align="right" item xs={6}>
-                    <Button
-                      endIcon={
-                        <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
-                      }
-                      size="large"
-                      variant="contained"
-                      onClick={() =>
-                        this.props.history.push({
-                          pathname: "/newClientForm",
-                          state: this.state.id,
-                        })
-                      }
-                      style={{ backgroundColor:"#388e3c", color: "white" }}
-                    >
-                      Înscrie-te acum
-                    </Button>
+                    <Grid align="right" item xs={6}>
+                      <Button
+                        endIcon={
+                          <KeyboardArrowRightIcon></KeyboardArrowRightIcon>
+                        }
+                        size="large"
+                        variant="contained"
+                        onClick={() =>
+                          this.props.history.push({
+                            pathname: "/newClientForm",
+                            state: this.state.id,
+                          })
+                        }
+                        style={{ backgroundColor: "#388e3c", color: "white" }}
+                      >
+                        Înscrie-te acum
+                      </Button>
                     </Grid>
                   </Grid>
-                  
-                   
-                   
                 </Paper>
               ) : (
                 <Paper className={classes.paper}>

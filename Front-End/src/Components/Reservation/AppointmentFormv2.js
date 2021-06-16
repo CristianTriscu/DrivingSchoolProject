@@ -4,81 +4,76 @@ import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import server from "../../ServerName/ServerName"
+import server from "../../ServerName/ServerName";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { country_list } from "../Countries/Countries";
-import NativeSelect from "@material-ui/core/NativeSelect";
 import { Typography } from "@material-ui/core";
-
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+import "date-fns";
 
 export default function AppointmentFormv2(props) {
   const [open, setOpen] = React.useState(false);
-  const [valueCountry, setValueCountry] = React.useState("");
   const [valueName, setValueName] = React.useState("");
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
+  const [selectedDate, setSelectedDate] = React.useState(
+    new Date("2018-06-27T10:00:00")
+  );
+  const [selectedDate2, setSelectedDate2] = React.useState(
+    new Date("2018-06-27T11:00:00")
+  );
 
-  const MonthAsString = (date) => {
-    const monthIndex = new Date(date).getMonth();
-    return monthNames[monthIndex];
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setSelectedDate2(date);
   };
-
-  
-  const handleChangeCountry = (e) => setValueCountry(e.target.value);
+  const handleDate1Change = (date) => {
+    setSelectedDate(date);
+  };
+  const handleDate2Change = (date) => {
+    setSelectedDate2(date);
+  };
   const handleChangeName = (e) => setValueName(e.target.value);
-  const handleChangeStartDate = (e) => setStartDate(e.target.value);
-  const handleChangeEndDate = (e) => setEndDate(e.target.value);
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleConfirm = async (e) => {
-    // try {
-    //   if (
-    //     valueCountry === "" ||
-    //     valueName === ""
-        
-    //   ) {
-    //     alert("Complete all fields!");
-    //     return;
-    //   } else {
-    //     e.preventDefault();
-    //     const requestOptions = {
-    //       method: "POST",
-    //       body: JSON.stringify({
-    //         name: valueName,
-    //         country: valueCountry,
-    //         month: MonthAsString(startDate) + " - " + MonthAsString(endDate),
-    //       }),
-    //     };
-    //     const response = await fetch(server + "spot", requestOptions);
-    //     const data = await response.json();
-
-    //     if (data) {
-    //       handleClose();
-    //       alert("Succes!");
-    //       props.loadData();
-    //     } else {
-    //       alert("Something is wrong!");
-    //     }
-    //   }
-    // } catch (err) {
-    //   alert(err.toString());
-    // }
+    try {
+      if (selectedDate2 === "" || selectedDate === "" || valueName === "") {
+        alert("Complete all fields!");
+        return;
+      } else {
+        e.preventDefault();
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: valueName,
+            employeeId: 6,
+            startDate: new Date(selectedDate).toString(),
+            endDate: new Date(selectedDate2).toString(),
+            ClientId: 2174,
+            service_id: 1,
+            vehicle_id: 99,
+          }),
+        };
+        const response = await fetch(server + "requests", requestOptions);
+        const data = await response.json();
+        console.log(data);
+        if (data) {
+          handleClose();
+          alert("Succes!");
+          props.loadData(6);
+        } else {
+          alert("Something is wrong!");
+        }
+      }
+    } catch (err) {
+      alert(err.toString());
+    }
   };
 
   const handleClose = () => {
@@ -87,9 +82,24 @@ export default function AppointmentFormv2(props) {
 
   return (
     <div>
-      <Button style={{marginTop:"1rem"}}variant="contained" color="secondary" onClick={handleClickOpen}>
-         Solicită o ședință
+      <Button
+        style={{ marginTop: "1rem" }}
+        variant="contained"
+        color="secondary"
+        onClick={handleClickOpen}
+      >
+        Solicită o ședință
       </Button>
+
+      <Button
+        style={{ marginTop: "1rem", marginLeft: "1rem" }}
+        variant="contained"
+        color="primary"
+        onClick={() => props.loadData(6)}
+      >
+        Reîncarca date
+      </Button>
+
       <Dialog
         open={open}
         onClose={handleClose}
@@ -107,32 +117,46 @@ export default function AppointmentFormv2(props) {
             fullWidth
           />
           <div className="divider"></div>
-         
-         
+
           <Typography variant="h6" gutterBottom>
-            Data exactă pentru ședință:
+            Data și intervalul dorit pentru ședință:
           </Typography>
 
-          <TextField
-            onClick={handleChangeStartDate}
-            id="date"
-            views={["month"]}
-            label="dată începere"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              margin="normal"
+              id="date-picker-dialog"
+              label="Data ședinței"
+              format="MM/dd/yyyy"
+              value={selectedDate}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+            />
             <div className="divider"></div>
-          <TextField
-            onClick={handleChangeEndDate}
-            id="date"
-            label="dată finalizare"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
+            <KeyboardTimePicker
+              margin="normal"
+              id="time-picker-final"
+              label="Oră incepere"
+              value={selectedDate}
+              onChange={handleDate1Change}
+              KeyboardButtonProps={{
+                "aria-label": "change time",
+              }}
+            />
+            <div className="divider"></div>
+            <KeyboardTimePicker
+              margin="normal"
+              id="time-picker"
+              label="Oră finalizare"
+              value={selectedDate2}
+              onChange={handleDate2Change}
+              KeyboardButtonProps={{
+                "aria-label": "change time",
+              }}
+            />
+          </MuiPickersUtilsProvider>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="secondary">

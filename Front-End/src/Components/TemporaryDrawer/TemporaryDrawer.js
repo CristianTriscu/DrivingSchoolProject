@@ -13,7 +13,12 @@ import MenuIcon from "@material-ui/icons/Menu";
 import CloseIcon from "@material-ui/icons/Close";
 import { Typography } from "@material-ui/core";
 import {Link} from "@material-ui/core"
-
+import DriveEtaIcon from '@material-ui/icons/DriveEta';
+import EmailIcon from '@material-ui/icons/Email';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import InsertInvitationIcon from '@material-ui/icons/InsertInvitation';
+import StarsIcon from '@material-ui/icons/Stars';
 const useStyles = makeStyles({
   list: {
     paddingTop: 20,
@@ -25,9 +30,21 @@ const useStyles = makeStyles({
   fullList: {
     width: "auto",
   },
+
+  icon:{
+    color:"#F8F8F2"
+  }
 });
 
 export default function TemporaryDrawer() {
+
+  let userType = null;
+  let user = JSON.parse(localStorage.getItem('client'))
+  if(user){
+    userType = user.result.role;
+  }
+
+  console.log(userType);
   const history = useHistory();
   const classes = useStyles();
   const [state, setState] = React.useState({
@@ -71,9 +88,9 @@ export default function TemporaryDrawer() {
           onClick={() => history.push("/auth")}
         >
           <ListItemIcon>
-            <InboxIcon />
+            <StarsIcon className={classes.icon}/>
           </ListItemIcon>
-          <ListItemText primary={"Welcome Page"} />
+          <ListItemText primary={"Bun venit!"} />
         </ListItem>
 
         <ListItem
@@ -87,33 +104,40 @@ export default function TemporaryDrawer() {
           }
         >
           <ListItemIcon>
-            <InboxIcon />
+            <DashboardIcon className={classes.icon}/>
           </ListItemIcon>
           <ListItemText primary={"Dashboard"} />
         </ListItem>
 
+        {(userType === "client" || userType === 'instructor') ?(
         <ListItem button key={"Rezervă ședință"}
          onClick={() => history.push("/Reservation")}
         >
           <ListItemIcon>
-            <InboxIcon />
+            <InsertInvitationIcon className={classes.icon}/>
           </ListItemIcon>
-          <ListItemText primary={"Rezervă ședință"} />
+          <ListItemText primary={"Planificator ședințe"} />
         </ListItem>
+        ):(
+          <ListItem button key={"Generare documente"}
+          onClick={() => history.push("/Documents")}
+         >
+           <ListItemIcon>
+             <InsertInvitationIcon className={classes.icon}/>
+           </ListItemIcon>
+           <ListItemText primary={"Generare documente"} />
+         </ListItem>
+
+        )}
       </List>
 
       <Divider style={{ backgroundColor: "#F8F8F2" }} />
       <List>
-        <ListItem button key={"Teste de verificare"}>
-          <ListItemIcon>
-            <InboxIcon style={{ color: "#F8F8F2" }} />
-          </ListItemIcon>
-          <ListItemText primary={"Teste de verificare"} />
-        </ListItem>
+        
 
         <ListItem button key={"Notificări"}>
           <ListItemIcon>
-            <InboxIcon />
+            <EmailIcon className={classes.icon}/>
           </ListItemIcon>
           <ListItemText primary={"Notificări"} />
         </ListItem>
@@ -124,7 +148,7 @@ export default function TemporaryDrawer() {
           key={"Parc auto"}
         >
           <ListItemIcon>
-            <InboxIcon />
+            <DriveEtaIcon className={classes.icon} />
           </ListItemIcon>
           <ListItemText primary={"Parc auto"} />
         </ListItem>
