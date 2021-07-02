@@ -6,7 +6,7 @@ class Footer extends Component {
       <footer className="footer">
         <div  >
           <div>
-            Driving School Online Platform - Trișcu Cristian
+            Aplicație web dedicată școlilor de șoferi - © Trișcu Cristian
           </div>
         </div>
       </footer>

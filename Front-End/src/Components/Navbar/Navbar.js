@@ -189,8 +189,8 @@ export default function PrimarySearchAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-      <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+      <MenuItem onClick={handleProfileClick}>Profil</MenuItem>
+      <MenuItem onClick={handleSignOut}>Deconectare</MenuItem>
     </Menu>
   );
 
@@ -210,7 +210,7 @@ export default function PrimarySearchAppBar(props) {
         <IconButton color="inherit">
           <Badge color="secondary"></Badge>
         </IconButton>
-        <p>About</p>
+        <p>Despre</p>
       </MenuItem>
 
       <MenuItem>
@@ -219,17 +219,17 @@ export default function PrimarySearchAppBar(props) {
             <MailIcon />
           </Badge>
         </IconButton>
-        <p>Contact Us</p>
+        <p>Contact</p>
       </MenuItem>
       <MenuItem>
         <IconButton aria-label="Create an account" color="inherit">
           <Badge color="secondary"></Badge>
         </IconButton>
-        <p>Create an account</p>
+        <p>Înregistrare</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton aria-label="Sign In" color="inherit"></IconButton>
-        <p>Sign In</p>
+        <p>Conectare</p>
       </MenuItem>
     </Menu>
   );
@@ -268,7 +268,7 @@ export default function PrimarySearchAppBar(props) {
         >
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Profil</p>
       </MenuItem>
 
       <MenuItem onClick={handleSignOut}>
@@ -280,7 +280,7 @@ export default function PrimarySearchAppBar(props) {
         >
           <AccountCircle />
         </IconButton>
-        <p>Sign out</p>
+        <p>Deconectare</p>
       </MenuItem>
     </Menu>
   );
@@ -370,7 +370,7 @@ export default function PrimarySearchAppBar(props) {
               variant="h6"
               noWrap
             >
-              Driving School
+              Școala de șoferi online
             </Typography>
         
    
@@ -389,7 +389,7 @@ export default function PrimarySearchAppBar(props) {
                 variant="contained"
                 color="secondary"
               >
-                About
+                Despre
               </Button>
               <div className="divider"></div>
               <Button
@@ -397,7 +397,7 @@ export default function PrimarySearchAppBar(props) {
                 color="secondary"
                 onClick={() => history.push("/SignIn")}
               >
-                Sign In
+                Conectare
               </Button>
               <div className="divider"></div>
 
@@ -407,7 +407,7 @@ export default function PrimarySearchAppBar(props) {
                 color="inherit"
                 onClick={() => history.push("/Register")}
               >
-                Create an account
+                Înregistrare
               </Button>
 
               <div className="divider"></div>

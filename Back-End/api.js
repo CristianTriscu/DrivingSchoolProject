@@ -11,17 +11,17 @@ import {
   request_status,
   license_type,
   vehicle,
-  
   user,
   identityCard,
   message,
-
+  Series,
+  Groups,
+  incorrect_answers,
+  Questions,
 } from "./sequelize/sequelize.js";
 import permit from "./authorization/authorization.js";
-import getMessages from "./Messages.js"
+import seq from "sequelize";
 import jsonwebtoken from "jsonwebtoken";
-import e from "express";
-
 
 const jwt = jsonwebtoken;
 
@@ -109,7 +109,8 @@ router.route("/users").post(async (req, res) => {
   }
 
   //validare email
-  var em = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+  var em =
+    /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
   if (!req.body.email.match(em)) {
     return res.status(500).json({
       message: "Invalid email",
@@ -160,7 +161,8 @@ router.route("/users/:id").put((req, res) => {
   }
   if (req.body.email) {
     //validare email
-    var em = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    var em =
+      /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     if (!req.body.email.match(em)) {
       return res.status(500).json({
         message: "Invalid email",
@@ -256,16 +258,23 @@ router.route("/addresses/:id").delete((req, res) => {
 
 // --------Clients-----------//
 
-router.route("/clients").get((req, res) => {
-  Client.findAll()
-    .then((result) => res.json(result))
-    .catch((err) => console.log(err));
-});
-
 router.route("/clientsById/:id").get((req, res) => {
   Client.findByPk(req.params.id)
     .then((result) => res.json(result))
     .catch((err) => console.log(err));
+});
+
+router.route("/clients").get(async (req, res) => {
+  try {
+    const clientsWithInstructors = await Client.findAll({});
+    if (clientsWithInstructors) {
+      res.status(200).json(clientsWithInstructors);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 router.route("/ClientByUserId/:userId").get(async (req, res) => {
@@ -277,6 +286,23 @@ router.route("/ClientByUserId/:userId").get(async (req, res) => {
     });
     if (clientInfo) {
       res.status(200).json(clientInfo);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/ClientsByInstructorId/:employeeId").get(async (req, res) => {
+  try {
+    const client = await Client.findAll({
+      where: {
+        employeeId: req.params.employeeId,
+      },
+    });
+    if (client) {
+      res.status(200).json(client);
     } else {
       res.status(400).json({ message: "not found" });
     }
@@ -355,10 +381,7 @@ router.post(
       //regex pt cnp
       let cnp = `^[1-9]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(0[1-9]|[1-4]\d|5[0-2]|99)(00[1-9]|0[1-9]\d|[1-9]\d\d)\d$`;
 
-      //TODO DE ADAUGAT VALIDARI AFERENTE
-      //    if (Object.keys(req.body).length !== 3 || !req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('category') || !req.body.hasOwnProperty('calories')) {
-      //      return res.status(400).json({ "message": "malformed request" })
-      //}
+
 
       await Client.create({
         id: clientId,
@@ -646,6 +669,24 @@ router.route("/requests").post((req, res) => {
     });
 });
 
+router.route("/unavailablePeriod").post((req, res) => {
+  request
+    .create({
+      employeeId: req.body.employeeId,
+      title: req.body.title,
+      service_id: req.body.service_id,
+      vehicle_id: req.body.vehicle_id,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      state: "unavailable",
+      ClientId: null,
+    })
+    .then((response) => res.status(200).json(response))
+    .catch((err) => {
+      res.status(400), console.log(err);
+    });
+});
+
 router.route("/requests/:id").put((req, res) => {
   request.findByPk(req.params.id).then((record) => {
     record
@@ -677,19 +718,24 @@ router.route("/cancelReservation/:id/:clientId").delete(async (req, res) => {
     let date = new Date();
     let reservationToBeDeleted = await reservation.findByPk(req.params.id);
     if (reservationToBeDeleted) {
-      let differenceInDays = (date.getTime()-reservationToBeDeleted.startDate.getTime())/(1000 * 3600 * 24)
-      if( differenceInDays >= 2){
-      await reservationToBeDeleted.destroy();
-      await message.create({
-        content: `Reservation was canceled on ${date.toLocaleDateString()}`,
-        ClientId: req.params.clientId,
-      })
-      res.status(200).json({message:"accepted"})
-    }else{
-      res.status(403).json({message:"Must be at least 2 days difference to cancel the reservation. "})
-    }
+      let differenceInDays =
+        (date.getTime() - reservationToBeDeleted.startDate.getTime()) /
+        (1000 * 3600 * 24);
+      if (differenceInDays >= 2) {
+        await reservationToBeDeleted.destroy();
+        await message.create({
+          content: `Reservation was canceled on ${date.toLocaleDateString()}`,
+          ClientId: req.params.clientId,
+        });
+        res.status(200).json({ message: "accepted" });
+      } else {
+        res.status(403).json({
+          message:
+            "Must be at least 2 days difference to cancel the reservation. ",
+        });
+      }
     } else {
-      res.status(404).json({message:"not found"})
+      res.status(404).json({ message: "not found" });
     }
   } catch (er) {
     console.warn(er);
@@ -720,7 +766,7 @@ router.route("/makeRequestReservation/:id").delete(async (req, res) => {
         ? (minutes = `${date.getMinutes()}${date.getMinutes()}`)
         : (minutes = `${date.getMinutes()}`);
 
-        date2.getMinutes() === 0
+      date2.getMinutes() === 0
         ? (minutes = `${date2.getMinutes()}${date2.getMinutes()}`)
         : (minutes = `${date2.getMinutes()}`);
       await message.create({
@@ -739,8 +785,6 @@ router.route("/makeRequestReservation/:id").delete(async (req, res) => {
 // --------Requests------end-----//
 
 // -------- Messages ----------//
-
-
 
 // --------- Messages ---- end //
 
@@ -997,56 +1041,53 @@ router.route("/vehicles").get((req, res) => {
     .catch((err) => console.log(err));
 });
 
-router.route("/vehiclesB").get(async (req,res)=>{
-  try{
+router.route("/vehiclesB").get(async (req, res) => {
+  try {
     const vehiclesB = await vehicle.findAll({
-      where:{
-        vehicle_type:'B'
-      }
+      where: {
+        vehicle_type: "B",
+      },
     });
-    if(vehiclesB){
+    if (vehiclesB) {
       res.status(200).json(vehiclesB);
-    }else{
-      res.status(400).json({message:"not found"})
+    } else {
+      res.status(400).json({ message: "not found" });
     }
-  }
-  catch(e){
+  } catch (e) {
     console.warn(e);
   }
 });
 
-router.route("/vehiclesC").get(async (req,res)=>{
-  try{
+router.route("/vehiclesC").get(async (req, res) => {
+  try {
     const vehiclesC = await vehicle.findAll({
-      where:{
-        vehicle_type:'C'
-      }
+      where: {
+        vehicle_type: "C",
+      },
     });
-    if(vehiclesC){
+    if (vehiclesC) {
       res.status(200).json(vehiclesC);
-    }else{
-      res.status(400).json({message:"not found"})
+    } else {
+      res.status(400).json({ message: "not found" });
     }
-  }
-  catch(e){
+  } catch (e) {
     console.warn(e);
   }
 });
 
-router.route("/vehiclesD").get(async (req,res)=>{
-  try{
+router.route("/vehiclesD").get(async (req, res) => {
+  try {
     const vehiclesD = await vehicle.findAll({
-      where:{
-        vehicle_type:'D'
-      }
+      where: {
+        vehicle_type: "D",
+      },
     });
-    if(vehiclesB){
+    if (vehiclesB) {
       res.status(200).json(vehiclesD);
-    }else{
-      res.status(400).json({message:"not found"})
+    } else {
+      res.status(400).json({ message: "not found" });
     }
-  }
-  catch(e){
+  } catch (e) {
     console.warn(e);
   }
 });
@@ -1110,6 +1151,360 @@ router.route("/userswithclients").post((req, res) => {
     })
     .catch((err) => console.log(err));
 });
+
+// -- Serii si grupe
+router.route("/Series").get(async (req, res) => {
+  try {
+    const series = await Series.findAll({
+      attributes: {
+        include: [[seq.fn("COUNT", seq.col("SeriesId")), "no_of_clients"]],
+      },
+      include: [
+        {
+          model: Client,
+          attributes: [],
+        },
+      ],
+      group: [
+        "Series.id",
+        "Series.name",
+        "Series.start_date",
+        "Series.createdAt",
+        "Series.updatedAt",
+      ],
+    });
+    if (series) {
+      res.status(200).json(series);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/removeFromSeries/:id").put(async (req, res) => {
+  try {
+    const client = await Client.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (client) {
+      client.update({
+        SeriesId: null,
+      });
+      res.status(200).json(client);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/addToSeries/:id").put(async (req, res) => {
+  try {
+    const client = await Client.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (client) {
+      client.update({
+        SeriesId: req.body.SeriesId,
+      });
+      res.status(200).json(client);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/deleteSeries/:id").delete(async (req, res) => {
+  try {
+    const series = await Series.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (series) {
+      await series.destroy();
+      res.status(200).json({ message: "deleted with succes" });
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/updateSeries/:id").put(async (req, res) => {
+  try {
+    const series = await Series.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (series) {
+      await series.update({
+        name: req.body.name,
+        start_date: req.body.start_date,
+      });
+      res.status(200).json({ message: "updated with succes" });
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/createSeries").post(async (req, res) => {
+  try {
+    const series = await Series.create({
+      name: req.body.name,
+      start_date: req.body.start_date,
+    });
+
+    if (series) {
+      res.status(200).json({ message: "created with succes with succes" });
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/ClientsFromSeries/:id").get(async (req, res) => {
+  try {
+    const clientsFromSeries = await Client.findAll({
+      where: {
+        SeriesId: req.params.id,
+      },
+    });
+    if (clientsFromSeries) {
+      res.status(200).json(clientsFromSeries);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/ClientsNotAsignedToSeries").get(async (req, res) => {
+  try {
+    const clientsWithNoSeries = await Client.findAll({
+      where: {
+        SeriesId: null,
+      },
+    });
+
+    if (clientsWithNoSeries) {
+      res.status(200).json(clientsWithNoSeries);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/GroupsBySeriesId/:id").get(async (req, res) => {
+  try {
+    const groups = await Groups.findAll({
+      where: {
+        SeriesId: req.params.id,
+      },
+
+ 
+    });
+
+    if (groups) {
+      res.status(200).json(groups);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/CreateGroupsBySeriesId/:id").post(async (req, res) => {
+  try {
+    const groups = await Groups.create({
+      name: req.body.name,
+      SeriesId: req.body.seriesId,
+    });
+
+    if (groups) {
+      res.status(200).json({ message: "created with succes" });
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/DeleteGroupsById/:id").delete(async (req, res) => {
+  try {
+    const groups = await Groups.findOne({
+      where:{
+        id:req.params.id
+      }
+    });
+
+    if (groups) {
+      await groups.destroy();
+      res.status(200).json({ message: "deleted with succes" });
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/ClientiDupaIdGrupa/:id").get(async (req, res) => {
+  try {
+    const clientiDinGrupa = await Client.findAll({
+      where: {
+        GroupId: req.params.id,
+      },
+    });
+
+    if (clientiDinGrupa) {
+      res.status(200).json(clientiDinGrupa);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/ClientiFaraGrupaDinSerie/:id").get(async (req, res) => {
+  try {
+    const clientiFaraGrupa = await Client.findAll({
+      where: {
+        SeriesId: req.params.id,
+        GroupId: null,
+      },
+    });
+
+    if (clientiFaraGrupa) {
+      res.status(200).json(clientiFaraGrupa);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/removeFromGroup/:id").put(async (req, res) => {
+  try {
+    const client = await Client.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (client) {
+      client.update({
+        GroupId: null,
+      });
+      res.status(200).json(client);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/addToGroup/:id").put(async (req, res) => {
+  try {
+    const client = await Client.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (client) {
+      client.update({
+        GroupId: req.body.GroupId,
+      });
+      res.status(200).json(client);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+//invatare
+router.route("/Questions/:categorie/:dificultate").get(async (req, res) => {
+  try {
+    const questions = await Questions.findAll({
+      where: {
+        category: req.params.categorie,
+        difficulty: req.params.dificultate,
+      },
+      include: [
+        {
+          model: incorrect_answers,
+        },
+      ],
+      order: [["id", "DESC"]],
+    });
+
+    if (questions) {
+      res.status(200).json(questions);
+    } else {
+      res.status(400).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router
+  .route("/QuestionsByCatAndChapter/:category/:chapter")
+  .get(async (req, res) => {
+    try {
+      const questions = await Questions.findAll({
+        where: {
+          category: req.params.category,
+          chapter: req.params.chapter,
+        },
+        include: [
+          {
+            model: incorrect_answers,
+          },
+        ],
+        order: [["id", "DESC"]],
+      });
+
+      if (questions) {
+        res.status(200).json(questions);
+      } else {
+        res.status(400).json({ message: "not found" });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
 
 var port = 8080;
 app.listen(port, () => console.log("Server is running on port " + port));

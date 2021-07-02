@@ -1,11 +1,9 @@
 import React, { Component } from "react";
-import generateContractScolarizare from "./ContractDeScolarizare";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 import { register } from "../Register/RegistrationStyles";
-import { Button,Typography } from "@material-ui/core";
-import { TextField } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -14,59 +12,37 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import server from "../../ServerName/ServerName";
-
-import DocSelector from "./DocSelector"
+import { TextField } from "@material-ui/core";
 const columns = [
-  {id:"doc",
-  align: "right",
-   minWidth:50},
-  { id: "id", label: "Id", minWidth: 50 ,
-  align: "right",
-  format: (value) => value.toLocaleString("en-US"),
-},
-  { id: "last_name", label: "Nume", minWidth: 100,align: "right", },
-  { id: "first_name", label: "Prenume", minWidth: 100,align: "right", },
+  {
+    id: "id",
+    label: "Id",
+    minWidth: 10,
+    align: "right",
+    format: (value) => value.toLocaleString("en-US"),
+  },
+  { id: "last_name", label: "Nume", minWidth: 50, align: "right" },
+  { id: "first_name", label: "Prenume", minWidth: 50, align: "right" },
   {
     id: "phone",
     label: "Telefon",
-    minWidth: 170,
+    minWidth: 50,
     align: "right",
-    
   },
   {
     id: "email",
     label: "Email",
-    minWidth: 170,
     align: "right",
-    format: (value) => value.toLocaleString("en-US"),
+    minWidth: 50,
   },
   {
     id: "license_type",
-    label: "Categorie Auto",
-    minWidth: 100,
+    label: "Categorie",
     align: "right",
-    format: (value) => parseFloat(value).toFixed(2),
-  },
-  {
-    id: "is_active",
-    label: "este activ?",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toString(),
-  },
-  {
-    id: "createdAt",
-    label: "Data inscriere",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toLocaleString("en-US"),
   },
 ];
 
-
-
-
-class GenerateDocuments extends Component {
+class ClientsTable extends Component {
   constructor() {
     super();
 
@@ -74,55 +50,56 @@ class GenerateDocuments extends Component {
       page: 0,
       rowsPerPage: 10,
       data: [],
-      favPlaces: [],
-      inputText:"",
+      inputText: "",
+      employeeId:null
+
     };
 
     this.handleFilter = (e) => {
-      this.setState({
-        inputText: e.target.value,
-      });
-      if (this.state.inputText.length < 2) {
-       
-        this.loadData();
-      } else {
-        let clone = JSON.parse(JSON.stringify(this.state.data));
-        const result = clone.filter((value) =>
-          value.last_name.toString().includes(this.state.inputText)
-        );
-
         this.setState({
-          data: result,
+          inputText: e.target.value,
         });
-      }
-    };
-
-    this.loadData = async () => {
+        if (this.state.inputText.length < 2) {
+          //setData(initialDataFiltered);
+          this.loadData(this.state.employeeId)
+        } else {
+          let clone = JSON.parse(JSON.stringify(this.state.data));
+          const result = clone.filter((value) =>
+            value.last_name.toString().includes(this.state.inputText)
+          );
+         
+          this.setState({
+            data: result,
+          });
+        }
+      };
+    this.loadData = async (id) => {
       try {
         const requestOptions = {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         };
         const response = await fetch(
-          server + "clients" ,
+          server + "ClientsByInstructorId/" + id,
           requestOptions
         );
-       
+
         const data = await response.json();
         this.setState({
           data: data,
         });
-        console.log("clienti aici")
-        console.log(this.state.data);
       } catch (err) {
         alert(err.toString());
       }
     };
-
   }
 
-  componentDidMount(){
-    this.loadData()
+  componentDidMount() {
+    let employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
+    this.setState({
+        employeeId:employeeInfo.id
+    })
+    this.loadData(employeeInfo.id);
   }
   render() {
     const { classes } = this.props;
@@ -135,18 +112,20 @@ class GenerateDocuments extends Component {
           <CssBaseline />
 
           <Paper className={classes.paper} style={{ minHeight: "100vh" }}>
-            <Button /*onClick={() => generateContractScolarizare()}*/>
-              Generați documente pentru cursantul selectat.
-            </Button>
-            <div className="divider"></div>
+            <br />
+            <Button>Tabel cursați înscriși la dumneavoastră</Button>
+            <br />
+
             <Paper className={classes.root}>
-            <TextField
+              <br></br>
+              <TextField
                     id="outlined-basic"
                     label="Caută după nume..."
                     variant="outlined"
                     onChange={this.handleFilter}
                   />
               <TableContainer className={classes.container}>
+                <br />
                 <Table stickyHeader aria-label="sticky table">
                   <TableHead>
                     <TableRow>
@@ -175,20 +154,18 @@ class GenerateDocuments extends Component {
                             role="checkbox"
                             tabIndex={-1}
                             key={row.code}
-                          
                           >
                             {columns.map((column) => {
                               const value = row[column.id];
 
                               return (
                                 <TableCell key={column.id} align={column.align}>
-                                  
-                                  {column.id === 'doc'? <DocSelector clientId={row['id']} />:null}
-                                  {typeof value ==='boolean' && value ===true ?
-                                  
-                                    value===true?'DA':'NU'
-                                  :null  }
-                                  
+                                  {typeof value === "boolean" && value === true
+                                    ? value === true
+                                      ? "DA"
+                                      : "NU"
+                                    : null}
+
                                   {column.format && typeof value === "number"
                                     ? !column.id === "id"
                                       ? column.format(value)
@@ -196,8 +173,6 @@ class GenerateDocuments extends Component {
                                     : column.id === "id"
                                     ? null
                                     : value}
-
-                                  
                                 </TableCell>
                               );
                             })}
@@ -217,11 +192,11 @@ class GenerateDocuments extends Component {
                 onChangeRowsPerPage={this.handleChangeRowsPerPage}
               />
             </Paper>
+            <br></br>
           </Paper>
-          
         </div>
       </div>
     );
   }
 }
-export default withStyles(register)(GenerateDocuments);
+export default withStyles(register)(ClientsTable);

@@ -1,89 +1,250 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import WelcomePage from './Components/WelcomePage/WelcomePage';
-import Navbar from './Components/Navbar/Navbar';
+import React, { Component } from "react";
+import { useState } from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import WelcomePage from "./Components/WelcomePage/WelcomePage";
+import Navbar from "./Components/Navbar/Navbar";
 import Profile from "./Components/Profile/Profile";
-import Register from './Components/Register/Register';
-import Login from './Components/LogIn/Login';
-import Dashboard from './Components/DashBoard/DashBoard';
-import NewClientForm from './Components/newClientForm/NewClientForm';
-import Footer from './Components/Footer/Footer';
-import ParcAuto from './Components/ParcAuto/ParcAuto';
-import ClientReservation from './Components/Reservation/ClientReservation';
-import MsgInbox from './Components/Messages/MsgInbox';
-import GenerateDocuments from './Components/Documents/GenerateDocuments';
-export const clientDetails = JSON.parse(localStorage.getItem("client"));
+import Register from "./Components/Register/Register";
+import Login from "./Components/LogIn/Login";
+import Dashboard from "./Components/DashBoard/DashBoard";
+import NewClientForm from "./Components/newClientForm/NewClientForm";
+import Footer from "./Components/Footer/Footer";
+import ParcAuto from "./Components/ParcAuto/ParcAuto";
+import ClientReservation from "./Components/Reservation/ClientReservation";
+import MsgInbox from "./Components/Messages/MsgInbox";
+import GenerateDocuments from "./Components/Documents/GenerateDocuments";
+import Series from "./Components/Series/Series";
+import Groups from "./Components/Groups/Groups";
+import ClientsTable from "./Components/ClientsTable/ClientsTable";
 
-class App extends Component {
+function App() {
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route
+          path="/"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar />
+                <WelcomePage />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-  render() {
+        <Route
+          path="/auth"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <WelcomePage /> <Footer />
+              </div>
+            );
+          }}
+        />
 
-    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
-   // console.log(clientRole.result.role)
+        <Route
+          path="/Reservation"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <ClientReservation />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-    return (
-      <BrowserRouter >
-        <Switch>
+        <Route
+          path="/Documents"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                <Navbar isAuth={true} />
+                <GenerateDocuments />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
+        <Route
+          path="/Series"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <Series />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/" exact={true} component={() => {
-            return (<div className="App"> <Navbar /><WelcomePage /><Footer/></div>)
-          }} />
+        <Route
+          path="/Groups-Series"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <Groups />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/auth" exact={true} component={() => {
-            return (<div className="App"> <Navbar  isAuth={true}/><WelcomePage /> <Footer/></div>)
-          }} />
+        <Route
+          path="/Register"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar />
+                <Register />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/Reservation" exact={true} component={() => {
-            return <div className="App"> <Navbar  isAuth={true}/><ClientReservation/><Footer/></div>
-          }} />
-         
-          <Route path="/Documents" exact={true} component={()=>{
-            return <div className="App"><Navbar  isAuth={true}/><GenerateDocuments/><Footer/></div>
-          }}/>
-           
-          
-        
+        <Route
+          path="/SignIn"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar />
+                <Login />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          
-         
+        <Route
+          path="/DashboardAuth"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <Dashboard />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/Register" exact={true} component={() => {
-            return (<div className="App"> <Navbar /><Register /><Footer/></div>)
-          }} />
+        <Route
+          path="/DashboardNotAuth"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={false} />
+                <WelcomePage />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/SignIn" exact={true} component={() => {
-            return (<div className="App"> <Navbar /><Login /><Footer/></div>)
-          }} />
+        <Route
+          path="/newClientForm"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <NewClientForm />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/DashboardAuth" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={true} /><Dashboard /><Footer/></div>)
-          }} />
+        <Route
+          path="/Profile"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <Profile />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/DashboardNotAuth" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={false} /><WelcomePage /></div>)
-          }} />
+        <Route
+          path="/ParcAuto"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <ParcAuto />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-          <Route path="/newClientForm" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={true} /><NewClientForm /><Footer/></div>)
-          }} />
+        <Route
+          path="/ClientsTable"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <ClientsTable />
+                <Footer />
+              </div>
+            );
+          }}
+        />
 
-
-          <Route path="/Profile" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={true} /><Profile/><Footer/></div>)
-          }} />
-
-          <Route path="/ParcAuto" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={true} /><ParcAuto /><Footer/></div>)
-          }} />
-
-          <Route path="/Messages" exact={true} component={() => {
-            return (<div className="App"> <Navbar isAuth={true} /><MsgInbox/><Footer/></div>)
-          }} />
-
-        </Switch>
-      </BrowserRouter>)
-  }
+        <Route
+          path="/Messages"
+          exact={true}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={true} />
+                <MsgInbox />
+                <Footer />
+              </div>
+            );
+          }}
+        />
+      </Switch>
+    </BrowserRouter>
+  );
 }
 
 export default App;

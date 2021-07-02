@@ -26,7 +26,7 @@ import server from "../../ServerName/ServerName";
 import WaitingList from "./WaitingList";
 import { Typography } from "@material-ui/core";
 import CallIcon from "@material-ui/icons/Call";
-
+import UnavailablePeriodForm from "./UnavailablePeriodForm";
 const styles = (theme) => ({
   addButton: {
     bottom: theme.spacing(1) * 2,
@@ -400,12 +400,15 @@ class Demo extends React.PureComponent {
           <Scheduler data={data} locale={"en-US"} minHeight="100vh">
             {clientDetails.result.role === "client" ? (
               <AppointmentFormv2 loadData={this.loadData}></AppointmentFormv2>
-            ) : (
+            ) : (<div>
               <WaitingList
                 acceptRequest={this.acceptRequest}
                 deleteRequest={this.DeleteAppointmentById}
                 data={data}
               ></WaitingList>
+              <br></br>
+              <UnavailablePeriodForm loadData={this.loadData}/>
+              </div>
             )}
 
             <ViewState
@@ -434,7 +437,7 @@ class Demo extends React.PureComponent {
                 showCloseButton
               ></AppointmentTooltip>
             ) : (
-              <AppointmentTooltip showCloseButton></AppointmentTooltip>
+              <AppointmentTooltip showCloseButton showDeleteButton></AppointmentTooltip>
             )}
             <Toolbar />
             <DateNavigator></DateNavigator>

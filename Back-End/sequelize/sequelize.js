@@ -15,6 +15,64 @@ const sequelize = new Sequelize("bd_licenta2", DB_USERNAME, DB_PASSWORD, {
   },
 });
 
+export const Questions = sequelize.define("Questions",{
+  id:{
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    
+  },
+  correct_answer:{type:Sequelize.STRING},
+  category:{type:Sequelize.STRING},
+  difficulty:{type:Sequelize.STRING},
+  question:{type:Sequelize.STRING(600)},
+  chapter:{type:Sequelize.STRING},
+  image_url:{type:Sequelize.STRING}
+  
+})
+
+export const incorrect_answers = sequelize.define("IncorectAnswers",{
+  id:{
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    
+  },
+  incorrect_answer1:{type:Sequelize.STRING},
+  incorrect_answer2:{type:Sequelize.STRING},
+
+})
+
+export const Series = sequelize.define("Series",{
+  id:{
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: true,
+  },
+  name:{
+    type:Sequelize.STRING,
+  },
+
+  start_date:{
+    type: Sequelize.STRING,
+  }
+
+})
+
+export const Groups = sequelize.define("Groups",{
+  id:{
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: true,
+  },
+  name:{
+    type:Sequelize.STRING,
+  },
+
+})
+
 export const Address = sequelize.define("Addresses", {
   id: {
     type: Sequelize.STRING,
@@ -127,7 +185,7 @@ export const driving_lesson_service = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
       allowNull: true,
-      unique: true,
+      unique: false,
     },
     title: { type: Sequelize.STRING },
     price: { type: Sequelize.DECIMAL(12, 5) },
@@ -254,6 +312,8 @@ export const vehicle = sequelize.define("vehicles", {
 //user.hasMany(Client,{foreignKey:"id",foreignKeyConstraint:true});
 //Client.belongsTo(user,{foreignKey:"id"});
 
+
+// pana aici //
 Client.hasOne(identityCard);
 Client.hasOne(Address);
 
@@ -272,9 +332,16 @@ user.hasOne(employee);
 employee.hasOne(job_title);
 Client.hasMany(license_type);
 
+//pana
 
-reservation.hasOne(driving_lesson_service);
+//reservation.hasOne(driving_lesson_service);
 vehicle.hasOne(employee);
+
+Series.hasMany(Groups);
+Series.hasMany(Client);
+Groups.hasMany(Client);
+
+Questions.hasMany(incorrect_answers);
 
 sequelize
   .authenticate()

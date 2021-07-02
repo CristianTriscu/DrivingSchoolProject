@@ -1,10 +1,10 @@
-import React, { useEffect,useState } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
@@ -16,20 +16,9 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 
 import "date-fns";
-import { Typography } from "@material-ui/core";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    maxWidth: 752,
-  },
-  demo: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  title: {
-    margin: theme.spacing(2, 0, 2),
-  },
-}));
+
+
 
 const ListItemWithWiderSecondaryAction = withStyles({
   secondaryAction: {
@@ -43,9 +32,9 @@ export default function WaitingList(props) {
   let initialClone = JSON.parse(JSON.stringify(props.data));
   let initialDataFiltered = initialClone.filter((value) => value.state === "waiting");
   let [data1, setData] = useState([])
-  const classes = useStyles();
+
   const [open, setOpen] = React.useState(false);
-  let [counter, setCounter] = useState(0);
+
   let [search, setSearch] = useState("");
 
 
@@ -67,8 +56,8 @@ export default function WaitingList(props) {
        console.log(result);
        setData(result);
 
-       //setCounter(Math.random())
-       console.log(counter)
+     
+      
      }
 
   
@@ -82,12 +71,6 @@ export default function WaitingList(props) {
 
 
 
-  const handleConfirm = async (e) => {
-    try {
-    } catch (err) {
-      alert(err.toString());
-    }
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -132,14 +115,7 @@ export default function WaitingList(props) {
         Lista de așteptare
       </Button>
       <br></br>
-      <Button
-        style={{ marginTop: "1rem" }}
-        variant="contained"
-        color="secondary"
-        
-      >
-        Adaugă perioadă indisponibilă
-      </Button>
+  
       <Dialog
         open={open}
         onClose={handleClose}

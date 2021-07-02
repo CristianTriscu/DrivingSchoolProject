@@ -7,18 +7,18 @@ import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
 import { useHistory } from "react-router-dom";
 import MenuIcon from "@material-ui/icons/Menu";
 import CloseIcon from "@material-ui/icons/Close";
 import { Typography } from "@material-ui/core";
-import {Link} from "@material-ui/core"
-import DriveEtaIcon from '@material-ui/icons/DriveEta';
-import EmailIcon from '@material-ui/icons/Email';
-import ScheduleIcon from '@material-ui/icons/Schedule';
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import InsertInvitationIcon from '@material-ui/icons/InsertInvitation';
-import StarsIcon from '@material-ui/icons/Stars';
+import DriveEtaIcon from "@material-ui/icons/DriveEta";
+import EmailIcon from "@material-ui/icons/Email";
+import DashboardIcon from "@material-ui/icons/Dashboard";
+import InsertInvitationIcon from "@material-ui/icons/InsertInvitation";
+import StarsIcon from "@material-ui/icons/Stars";
+import DescriptionIcon from "@material-ui/icons/Description";
+import GroupAddIcon from "@material-ui/icons/GroupAdd";
+import PeopleIcon from "@material-ui/icons/People";
 const useStyles = makeStyles({
   list: {
     paddingTop: 20,
@@ -31,16 +31,18 @@ const useStyles = makeStyles({
     width: "auto",
   },
 
-  icon:{
-    color:"#F8F8F2"
-  }
+  icon: {
+    color: "#F8F8F2",
+  },
 });
-
+const openInNewTab = (url) => {
+  const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+  if (newWindow) newWindow.opener = null
+}
 export default function TemporaryDrawer() {
-
   let userType = null;
-  let user = JSON.parse(localStorage.getItem('client'))
-  if(user){
+  let user = JSON.parse(localStorage.getItem("client"));
+  if (user) {
     userType = user.result.role;
   }
 
@@ -74,21 +76,23 @@ export default function TemporaryDrawer() {
       onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}
     >
-       <ListItem button alignItems='center' >
-          <Typography >
-          <CloseIcon style={{paddingLeft:"5vw", color: "#F8F8F2"}} fontSize="large" />
-          </Typography>
-          </ListItem>
-          <Divider style={{ backgroundColor: "#F8F8F2" }}/>
+      <ListItem button alignItems="center">
+        <Typography>
+          <CloseIcon
+            style={{ paddingLeft: "5vw", color: "#F8F8F2" }}
+            fontSize="large"
+          />
+        </Typography>
+      </ListItem>
+      <Divider style={{ backgroundColor: "#F8F8F2" }} />
       <List>
-     
         <ListItem
           button
           key={"Welcome Page"}
           onClick={() => history.push("/auth")}
         >
           <ListItemIcon>
-            <StarsIcon className={classes.icon}/>
+            <StarsIcon className={classes.icon} />
           </ListItemIcon>
           <ListItemText primary={"Bun venit!"} />
         </ListItem>
@@ -104,40 +108,55 @@ export default function TemporaryDrawer() {
           }
         >
           <ListItemIcon>
-            <DashboardIcon className={classes.icon}/>
+            <DashboardIcon className={classes.icon} />
           </ListItemIcon>
           <ListItemText primary={"Dashboard"} />
         </ListItem>
 
-        {(userType === "client" || userType === 'instructor') ?(
-        <ListItem button key={"Rezervă ședință"}
-         onClick={() => history.push("/Reservation")}
-        >
-          <ListItemIcon>
-            <InsertInvitationIcon className={classes.icon}/>
-          </ListItemIcon>
-          <ListItemText primary={"Planificator ședințe"} />
-        </ListItem>
-        ):(
-          <ListItem button key={"Generare documente"}
-          onClick={() => history.push("/Documents")}
-         >
-           <ListItemIcon>
-             <InsertInvitationIcon className={classes.icon}/>
-           </ListItemIcon>
-           <ListItemText primary={"Generare documente"} />
-         </ListItem>
+        {userType === "client" || userType === "instructor" ? (
+          <ListItem
+            button
+            key={"Rezervă ședință"}
+            onClick={() => history.push("/Reservation")}
+          >
+            <ListItemIcon>
+              <InsertInvitationIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Planificator ședințe"} />
+          </ListItem>
+        ) : null}
 
-        )}
+        {userType==="instructor" ?(   <ListItem
+            button
+            key={"Tabel cursanți"}
+            onClick={() => history.push("/ClientsTable")}
+          >
+            <ListItemIcon>
+              <InsertInvitationIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Tabel cursanți"} />
+          </ListItem>):null}
+
+        {userType === "client" ? (
+          <ListItem
+            button
+            key={"Teste de verificare"}
+            onClick={()=> openInNewTab('http://localhost:3001/')}
+           
+          >
+            <ListItemIcon>
+              <InsertInvitationIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Teste de verificare"} />
+          </ListItem>
+        ) : null}
       </List>
 
       <Divider style={{ backgroundColor: "#F8F8F2" }} />
       <List>
-        
-
         <ListItem button key={"Notificări"}>
           <ListItemIcon>
-            <EmailIcon className={classes.icon}/>
+            <EmailIcon className={classes.icon} />
           </ListItemIcon>
           <ListItemText primary={"Notificări"} />
         </ListItem>
@@ -153,6 +172,42 @@ export default function TemporaryDrawer() {
           <ListItemText primary={"Parc auto"} />
         </ListItem>
       </List>
+      <Divider style={{ backgroundColor: "#F8F8F2" }} />
+      {userType === "admin" ? (
+        <List>
+          <ListItem
+            button
+            key={"Generare documente cursanți"}
+            onClick={() => history.push("/Documents")}
+          >
+            <ListItemIcon>
+              <DescriptionIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Generare documente cursanți"} />
+          </ListItem>
+          <ListItem
+            button
+            key={"Adaugă/Modifică serii"}
+            onClick={() => history.push("/Series")}
+          >
+            <ListItemIcon>
+              <GroupAddIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Adaugă/Modifică serii"} />
+          </ListItem>
+
+          <ListItem
+            onClick={() => history.push("/Groups-Series")}
+            button
+            key={"Groups-Series"}
+          >
+            <ListItemIcon>
+              <PeopleIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Vizualizare pe serii/grupe"} />
+          </ListItem>
+        </List>
+      ) : null}
     </div>
   );
 

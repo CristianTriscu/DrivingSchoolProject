@@ -15,7 +15,7 @@ import {
 } from "@material-ui/pickers";
 import "date-fns";
 
-export default function AppointmentFormv2(props) {
+export default function UnavailablePeriodForm(props) {
   const [open, setOpen] = React.useState(false);
   const [valueName, setValueName] = React.useState("");
   const [selectedDate, setSelectedDate] = React.useState(
@@ -55,12 +55,13 @@ export default function AppointmentFormv2(props) {
             employeeId: 6,
             startDate: new Date(selectedDate).toString(),
             endDate: new Date(selectedDate2).toString(),
-            ClientId: 2174,
+            ClientId: null,
             service_id: 1,
             vehicle_id: 99,
+           
           }),
         };
-        const response = await fetch(server + "requests", requestOptions);
+        const response = await fetch(server + "unavailablePeriod", requestOptions);
         const data = await response.json();
         console.log(data);
         if (data) {
@@ -88,7 +89,7 @@ export default function AppointmentFormv2(props) {
         color="secondary"
         onClick={handleClickOpen}
       >
-        Solicită o ședință
+        Adauga perioada indisponibilă
       </Button>
 
       <Button
@@ -105,21 +106,21 @@ export default function AppointmentFormv2(props) {
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Solicită o ședință</DialogTitle>
+        <DialogTitle id="form-dialog-title">Adaugă perioadă indisponibilă</DialogTitle>
         <DialogContent>
           <TextField
             onChange={handleChangeName}
             autoFocus
             margin="dense"
             id="name"
-            label="Nume complet"
+            label="Motiv(optional)"
             type="name"
             fullWidth
           />
           <div className="divider"></div>
 
           <Typography variant="h6" gutterBottom>
-            Data și intervalul dorit pentru ședință:
+            Data și intervalul indisponibil
           </Typography>
 
           <MuiPickersUtilsProvider utils={DateFnsUtils}>

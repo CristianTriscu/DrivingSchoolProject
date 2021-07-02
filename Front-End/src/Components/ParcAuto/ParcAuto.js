@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -12,14 +12,11 @@ import "react-awesome-slider/dist/styles.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import server from "../../ServerName/ServerName"
-
+import server from "../../ServerName/ServerName";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
-
-  
   return (
     <div
       role="tabpanel"
@@ -67,15 +64,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function TabsWrappedLabel(props) {
-
   const classes = useStyles();
   const [value, setValue] = React.useState("one");
   const [vehicles, setVehicles] = React.useState([]);
-  
-  let VehiclesB= vehicles.filter(v=>v.vehicle_type === 'B');
-  let VehiclesC= vehicles.filter(v=>v.vehicle_type === 'C');
-  let VehiclesD= vehicles.filter(v=>v.vehicle_type === 'D');
 
+  let VehiclesB = vehicles.filter((v) => v.vehicle_type === "B");
+  let VehiclesC = vehicles.filter((v) => v.vehicle_type === "C");
+  let VehiclesD = vehicles.filter((v) => v.vehicle_type === "D");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -87,10 +82,7 @@ export default function TabsWrappedLabel(props) {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       };
-      const response = await fetch(
-        server + "vehicles",
-        requestOptions
-      );
+      const response = await fetch(server + "vehicles", requestOptions);
       const data = await response.json();
 
       if (data) {
@@ -103,22 +95,18 @@ export default function TabsWrappedLabel(props) {
   };
 
   useEffect(async () => {
-     loadVehicles();
-  }, [])
-
-  
+    loadVehicles();
+  }, []);
 
   return (
-    
     <div className={classes.root}>
-      <AppBar position="static"  style={{backgroundColor:"#9B9DC0"}}>
+      <AppBar position="static" style={{ backgroundColor: "#9B9DC0" }}>
         <Tabs
           value={value}
           onChange={handleChange}
           aria-label="wrapped label tabs example"
         >
           <Tab
-           
             value="one"
             label="Categoria B/BE"
             wrapped
@@ -135,7 +123,7 @@ export default function TabsWrappedLabel(props) {
             <Carousel dynamicHeight="true">
               {VehiclesB.map((v) => (
                 <div>
-                  <img src={v.image_url} />
+                  <img alt="no-warn" src={v.image_url} />
                   <p className="legend">{v.make + " " + v.model}</p>
                 </div>
               ))}
@@ -147,28 +135,14 @@ export default function TabsWrappedLabel(props) {
       </TabPanel>
       <TabPanel value={value} index="two">
         Urmează sa fie adaugate imaginile
-        {/* <Paper className={classes.paper}>
-          <div class="carousel-wrapper">
-            <Carousel dynamicHeight="true">
-              {images.map((image) => (
-                <div>
-                  <img src={image.src} />
-                  <p className="legend">{image.name}</p>
-                </div>
-              ))}
-            </Carousel>
-          </div>
-        </Paper>
-        <br></br>
-        <br></br> */}
       </TabPanel>
       <TabPanel value={value} index="three">
-           <Paper className={classes.paper}>
+        <Paper className={classes.paper}>
           <div class="carousel-wrapper">
             <Carousel dynamicHeight="true">
               {VehiclesC.map((v) => (
                 <div>
-                  <img src={v.image_url} />
+                  <img alt="vehicles-category-C" src={v.image_url} />
                   <p className="legend">{v.make + " " + v.model}</p>
                   <p>test</p>
                 </div>
@@ -180,13 +154,12 @@ export default function TabsWrappedLabel(props) {
         <br></br>
       </TabPanel>
       <TabPanel value={value} index="four">
-           <Paper className={classes.paper}>
+        <Paper className={classes.paper}>
           <div class="carousel-wrapper">
             <Carousel dynamicHeight="true">
               {VehiclesD.map((v) => (
                 <div>
-                 
-                  <img src={v.image_url} />
+                  <img alt="vehicles-category-D" src={v.image_url} />
                   <p className="legend">{v.make + " " + v.model}</p>
                 </div>
               ))}
@@ -196,7 +169,6 @@ export default function TabsWrappedLabel(props) {
         <br></br>
         <br></br>
       </TabPanel>
- 
     </div>
   );
 }

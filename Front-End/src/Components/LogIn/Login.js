@@ -164,7 +164,7 @@ class Login extends Component {
                   type="submit"
                   onClick={this.submitSignIn}
                 >
-                  SIGN IN
+                  Conectează-te
                 </Button>
               </form>
 

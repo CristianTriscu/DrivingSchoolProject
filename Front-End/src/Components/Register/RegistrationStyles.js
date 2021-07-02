@@ -16,9 +16,8 @@ export const register = theme => ({
     width: "auto",
    
     [theme.breakpoints.up(400 + theme.spacing(150))]: {
-      width: 400,
-      marginLeft: "auto",
-      marginRight: "auto"
+      width: "auto",
+  
     }
   },
   paper: {
@@ -147,5 +146,16 @@ export const register = theme => ({
   passwordEye: {
     color: "rgba(131,153,167,0.9)",
     opacity: 0.7
-  }
+  },
+
+  root: {
+    width: "100%",
+  },
+  bg: {
+    padding: 25,
+    textAlign: "center",
+    color: "black",
+    backgroundColor: "#F6F7F8",
+    minHeight: "100vh",
+  },
 });
