@@ -11,6 +11,17 @@
   }
 }
 
+
+#dashContainerImage{
+  padding-left: 15rem;
+}
+
+@media screen and(max-width: 600) {
+  #dashContainerImage{
+  padding-left: 0;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -53,7 +64,7 @@ body {
 }
 
 .page-section {
-  padding: 8rem 0;
+  padding: 5rem 0;
 }
 
 ::-webkit-scrollbar {
@@ -107,13 +118,13 @@ bg-light py-5{
 .right{
  
   display:table-cell;
-  width:30vw;
+  width:30%;
 }
 
 .left{
   
   display:table-cell;
-  width:30vw;
+  width:30%;
   padding-right: 3vw;
 }
 

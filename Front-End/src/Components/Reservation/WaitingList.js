@@ -52,8 +52,7 @@ export default function WaitingList(props) {
      } else {
        let clone = JSON.parse(JSON.stringify(props.data));
        const result = clone.filter((value) => value.title.includes(search));
-       console.log(props.data);
-       console.log(result);
+
        setData(result);
 
      

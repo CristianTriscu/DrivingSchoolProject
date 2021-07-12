@@ -35,7 +35,7 @@ class Profile extends Component {
 
   render() {
     const { classes } = this.props;
-    console.log(this.props);
+
 
     if (this.props.location.state !== undefined)
       return (

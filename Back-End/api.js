@@ -22,7 +22,7 @@ import {
 import permit from "./authorization/authorization.js";
 import seq from "sequelize";
 import jsonwebtoken from "jsonwebtoken";
-
+import { questions } from "./questions/cap13.js";
 const jwt = jsonwebtoken;
 
 ////---------------USERS-----------------////
@@ -380,8 +380,6 @@ router.post(
 
       //regex pt cnp
       let cnp = `^[1-9]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(0[1-9]|[1-4]\d|5[0-2]|99)(00[1-9]|0[1-9]\d|[1-9]\d\d)\d$`;
-
-
 
       await Client.create({
         id: clientId,
@@ -758,7 +756,7 @@ router.route("/makeRequestReservation/:id").delete(async (req, res) => {
       });
       await solicitation.destroy();
       const date = new Date(reservation_.startDate);
-      const date2 = new Date(reservation.endDate);
+      const date2 = new Date(reservation_.endDate);
 
       let minutes = null;
       let minutes2 = null;
@@ -767,11 +765,12 @@ router.route("/makeRequestReservation/:id").delete(async (req, res) => {
         : (minutes = `${date.getMinutes()}`);
 
       date2.getMinutes() === 0
-        ? (minutes = `${date2.getMinutes()}${date2.getMinutes()}`)
-        : (minutes = `${date2.getMinutes()}`);
+        ? (minutes2 = `${date2.getMinutes()}${date2.getMinutes()}`)
+        : (minutes2 = `${date2.getMinutes()}`);
       await message.create({
-        content: `Reservation accepted for ${date.toLocaleDateString()}. Starting hour: ${date.getHours()}:${minutes} - Ending hour: ${date2.getHours()}:${minutes2}`,
+        content: `Ședință acceptată pentru data de ${date.toLocaleDateString()}. Ora de începere: ${date.getHours()}:${minutes} - Ora de finalizare ${date2.getHours()}:${minutes2}`,
         ClientId: reservation_.ClientId,
+        isRead:false,
       });
       res.status(200).json({ message: "accepted" });
     } else {
@@ -1324,8 +1323,6 @@ router.route("/GroupsBySeriesId/:id").get(async (req, res) => {
       where: {
         SeriesId: req.params.id,
       },
-
- 
     });
 
     if (groups) {
@@ -1358,9 +1355,9 @@ router.route("/CreateGroupsBySeriesId/:id").post(async (req, res) => {
 router.route("/DeleteGroupsById/:id").delete(async (req, res) => {
   try {
     const groups = await Groups.findOne({
-      where:{
-        id:req.params.id
-      }
+      where: {
+        id: req.params.id,
+      },
     });
 
     if (groups) {
@@ -1505,6 +1502,142 @@ router
       console.log(e);
     }
   });
+
+router.route("/mainPage").get(async (req, res) => {
+  try {
+    const nrOfInstructors = await employee.count();
+    const nrOfClients = await Client.count({ where: { is_active: true } });
+
+    if (nrOfClients && nrOfInstructors) {
+      res
+        .status(200)
+        .json({ nrOfInstructors: nrOfInstructors, nrOfClients: nrOfClients });
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.route("/getMessages").get(async (req, res) => {
+  try {
+    let messages = await message.findAll();
+    if (messages) {
+      res.status(200).json(messages);
+    } else {
+      res.status(404).json({ message: "no messages" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/getMessages/:clientId").get(async (req, res) => {
+  try {
+    let messages = await message.findAll({
+      where: {
+        ClientId: req.params.clientId,
+      },
+      order: [
+        ['id', 'DESC'],
+    ],
+    });
+    if (messages) res.status(200).json(messages);
+    else res.status(404).json({ message: "no messages" });
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+
+router.route("/getUnreadMessages/:clientId").get(async (req, res) => {
+  try {
+    let messages = await message.findAll({
+      where: {
+        ClientId: req.params.clientId,
+        isRead:false,
+      },
+    
+    });
+    if (messages) res.status(200).json(messages);
+    else res.status(404).json({ message: "no messages" });
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/deleteMessage/:id").delete(async (req, res) => {
+  try {
+    let messageToBeDeleted = await message.findByPk(req.params.id);
+    if (messageToBeDeleted) {
+      messageToBeDeleted.destroy();
+      res.status(200).json({ message: "accepted" });
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/markAsRead/:id").put(async (req, res) => {
+  try {
+    let message1 = await message.findByPk(req.params.id);
+    if (message1) {
+      message1.update({
+        isRead: true,
+      });
+
+      res.status(200).json({ message: "accepted" });
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/markAsUnRead/:id").put(async (req, res) => {
+  try {
+    let message1 = await message.findByPk(req.params.id);
+    if (message1) {
+      message1.update({
+        isRead: false,
+      });
+
+      res.status(200).json({ message: "accepted" });
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+router.route("/fillData").post(async (req, res) => {
+  try {
+    for (let i = 0; i < questions.length; i++) {
+      const question = await Questions.create({
+        category: "B",
+        difficulty: "easy",
+        question: questions[i].question,
+        correct_answer: questions[i].answer,
+        chapter: "Noţiuni de mecanică; Cunoaşterea automobilului",
+        image_url: questions[i].image_url,
+      });
+
+      const wrong_anw = await incorrect_answers.create({
+        incorrect_answer1: questions[i].wrong_answer1,
+        incorrect_answer2: questions[i].wrong_answer2,
+        QuestionId: question.id,
+      });
+    }
+    res.status(200).json({ message: "ok" });
+  } catch (e) {
+    console.log(e);
+  }
+});
 
 var port = 8080;
 app.listen(port, () => console.log("Server is running on port " + port));

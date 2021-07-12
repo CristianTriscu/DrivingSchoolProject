@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import ListItem from "@material-ui/core/ListItem";
 import DescriptionIcon from "@material-ui/icons/Description";
 import "date-fns";
-import { Typography } from "@material-ui/core";
 import { FormControl, Select, InputLabel, MenuItem } from "@material-ui/core";
 import generateContractScolarizare from "./ContractDeScolarizare"
 import generateDeclaratieProprieRaspundere from "./DeclaratieProprieRaspundere"
@@ -23,26 +20,14 @@ const tipuriDocumente = [
   },
 ];
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    maxWidth: 752,
-  },
-  demo: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  title: {
-    margin: theme.spacing(2, 0, 2),
-  },
-}));
+
 
 export default function DocumentSelector(props) {
     //pe asta il folosesc ca sa iau datele pentru fiecare user si sa le pun in state si dupa in parametrii functiei de generare
-    console.log("props aici")
+ 
     console.log(props.clientId);
 
-  let [data1, setData] = useState([]);
-  const classes = useStyles();
+ 
   const [open, setOpen] = React.useState(false);
 
   const [name, setName] = React.useState(-1);

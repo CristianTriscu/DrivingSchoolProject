@@ -1,2 +1,3 @@
-export const randomText=`Cererea ta va fi verificată de noi și vei primi un raspuns în cel mai scurt timp posibil. Poți verifica statusul cererii tale in caseta alăturată.`
-export const randomText2=`Te rugam să verifici următoarea legendă pentru a înțelege posibilele rezultate: `
+export const randomText=`  Cererea dumnneavoastra este verificată pentru a vă putea înregistra în sistem.Veți primi un raspuns în cel mai scurt timp posibil iar statusul cererii îl puteți verifica constant în secțiunea anterioară.
+Odată cu acceptarea acesteia veți avea acces la planificatorul de ședințe și la testele de verificare. Mulțumim.`
+export const randomText2=`Vă rugăm să verificați următoarea legendă pentru a înțelege posibilele rezultate:\n\n\n `

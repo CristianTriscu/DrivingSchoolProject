@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import generateContractScolarizare from "../Documents/ContractDeScolarizare";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
@@ -20,16 +19,6 @@ import { TextField } from "@material-ui/core";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import CreateGroupMenu from "./CreateGroupMenu";
-const serii = [
-  {
-    id: 1,
-    nume: "Seria A",
-  },
-  {
-    id: 2,
-    nume: "Seria B",
-  },
-];
 
 const columns = [
   //   { id: "select", align: "center", maxWidth: 200 },
@@ -140,8 +129,8 @@ class Series extends Component {
       currentGroupId: "",
       cursantiFaraGrupa: [],
       numeGrupaCurenta: "",
-      inputText1:"",
-      inputText2:""
+      inputText1: "",
+      inputText2: "",
     };
 
     this.loadSeries = async () => {
@@ -160,8 +149,6 @@ class Series extends Component {
         } else {
           console.log("bad request");
         }
-        console.log("serii aici");
-        console.log(this.state.series);
       } catch (err) {
         console.log(err);
       }
@@ -179,7 +166,7 @@ class Series extends Component {
           requestOptions
         );
 
-        const data = await response.json();
+        await response.json();
         if (response.status === 200) {
           console.log("removed with succces");
         } else {
@@ -206,7 +193,7 @@ class Series extends Component {
           requestOptions
         );
 
-        const data = await response.json();
+        await response.json();
         if (response.status === 200) {
           console.log("added with succces");
         } else {
@@ -239,20 +226,21 @@ class Series extends Component {
     };
 
     this.handleFilterUnassignedToGroups = (e) => {
-
       this.setState({
-        inputText2:e.target.value
-      })
-      if (this.state.inputText2.length <2) {
+        inputText2: e.target.value,
+      });
+      if (this.state.inputText2.length < 2) {
         //setData(initialDataFiltered);
         this.loadCursantiNeasignati(this.state.serieCurenta);
       } else {
         let clone = JSON.parse(JSON.stringify(this.state.cursantiFaraGrupa));
-        const result = clone.filter((value) => value.last_name.toString().includes(this.state.inputText2));
-       
+        const result = clone.filter((value) =>
+          value.last_name.toString().includes(this.state.inputText2)
+        );
+
         this.setState({
-          cursantiFaraGrupa:result
-        })
+          cursantiFaraGrupa: result,
+        });
       }
     };
     this.loadGroups = async (id) => {
@@ -271,9 +259,8 @@ class Series extends Component {
           this.setState({
             groups: data,
           });
-        } else if (id===null) {
-          alert("alegeți o serie")
-          
+        } else if (id === null) {
+          alert("alegeți o serie");
         } else {
           console.log("bad request");
         }
@@ -301,9 +288,6 @@ class Series extends Component {
         } else {
           console.log("bad request");
         }
-
-        console.log("aici boss pls");
-        console.log(this.state.cursantiFaraGrupa);
       } catch (err) {
         console.log(err);
       }
@@ -335,7 +319,7 @@ class Series extends Component {
       }
     };
 
-    this.deleteGroup = async (id) =>{
+    this.deleteGroup = async (id) => {
       try {
         const requestOptions = {
           method: "DELETE",
@@ -355,7 +339,7 @@ class Series extends Component {
       } catch (err) {
         console.log(err);
       }
-    }
+    };
 
     this.handleChange = (name) => (e) => {
       this.setState({
@@ -376,7 +360,6 @@ class Series extends Component {
         this.setState({
           data: data,
         });
-
       } catch (err) {
         alert(err.toString());
       }
@@ -388,367 +371,385 @@ class Series extends Component {
     this.loadSeries();
   }
   render() {
-  
     const { classes } = this.props;
-    return (
-      <div
-        id="registerBg"
-        style={{ backgroundColor: "#4F527D", minHeight: "100vh" }}
-      >
-        <div className={classes.main}>
-          <CssBaseline />
 
-          <Paper className={classes.paper} style={{ minHeight: "100vh" }}>
-            <br />
-            <Button>Gestiunea grupelor</Button>
-            <br />
-         
-            <Paper className={classes.root}>
-              <div>
-                <FormControl style={{ minWidth: 300 }}>
-                  <InputLabel id="demo-simple-select-label">
-                    Alegeți o serie
-                  </InputLabel>
-                  <Select
-                    defaultValue={""}
-                    onChange={
-                      this.handleChange("idSerie")
-                      //this.loadGroups(this.state.serieCurenta)
-                    }
-                  >
-                    {this.state.series.map((elem) => (
-                      <MenuItem key={elem.id} value={elem.id}>
-                        {elem.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Button
-                  style={{ marginTop: "1rem", marginLeft: "1rem" }}
-                  color="primary"
-                  variant="contained"
-                  onClick={() => {
-                    this.loadGroups(this.state.serieCurenta);
-                    this.loadCursantiNeasignati(this.state.serieCurenta);
-                  }}
-                >
-                  Încarcă date
-                </Button>
-              </div>
+    const client = JSON.parse(localStorage.getItem("client"));
+    if (client.result.role === "admin") {
+      return (
+        <div
+          id="registerBg"
+          style={{ backgroundColor: "#4F527D", minHeight: "100vh" }}
+        >
+          <div className={classes.main}>
+            <CssBaseline />
 
-              <br></br>
-              <TableContainer className={classes.container}>
+            <Paper className={classes.paper} style={{ minHeight: "100vh" }}>
               <br />
-            <CreateGroupMenu seriesId={this.state.serieCurenta} loadGroups={this.loadGroups} />
-            <br />
-            <br/>
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ minWidth: column.minWidth }}
-                        >
-                          {column.label}
-                        </TableCell>
+              <Button>Gestiunea grupelor</Button>
+              <br />
+
+              <Paper className={classes.root}>
+                <div>
+                  <FormControl style={{ minWidth: 300 }}>
+                    <InputLabel id="demo-simple-select-label">
+                      Alegeți o serie
+                    </InputLabel>
+                    <Select
+                      defaultValue={""}
+                      onChange={
+                        this.handleChange("idSerie")
+                        //this.loadGroups(this.state.serieCurenta)
+                      }
+                    >
+                      {this.state.series.map((elem) => (
+                        <MenuItem key={elem.id} value={elem.id}>
+                          {elem.name}
+                        </MenuItem>
                       ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.state.groups
-                      .slice(
-                        this.state.page * this.state.rowsPerPage,
-                        this.state.page * this.state.rowsPerPage +
-                          this.state.rowsPerPage
-                      )
-                      .map((row) => {
-                        return (
-                          <TableRow
-                            hover
-                            role="checkbox"
-                            tabIndex={-1}
-                            key={row.code}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    style={{ marginTop: "1rem", marginLeft: "1rem" }}
+                    color="primary"
+                    variant="contained"
+                    onClick={() => {
+                      this.loadGroups(this.state.serieCurenta);
+                      this.loadCursantiNeasignati(this.state.serieCurenta);
+                    }}
+                  >
+                    Încarcă date
+                  </Button>
+                </div>
+
+                <br></br>
+                <TableContainer className={classes.container}>
+                  <br />
+                  <CreateGroupMenu
+                    seriesId={this.state.serieCurenta}
+                    loadGroups={this.loadGroups}
+                  />
+                  <br />
+                  <br />
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {columns.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ minWidth: column.minWidth }}
                           >
-                            {columns.map((column) => {
-                              const value = row[column.id];
+                            {column.label}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.state.groups
+                        .slice(
+                          this.state.page * this.state.rowsPerPage,
+                          this.state.page * this.state.rowsPerPage +
+                            this.state.rowsPerPage
+                        )
+                        .map((row) => {
+                          return (
+                            <TableRow
+                              hover
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={row.code}
+                            >
+                              {columns.map((column) => {
+                                const value = row[column.id];
 
-                              return (
-                                <TableCell key={column.id} align={column.align}>
-                                  {column.id === "select" ? (
-                                    <div>
-                                      <Button
-                                        style={{ marginRight: "0.5rem" }}
-                                        color="primary"
-                                        variant="outlined"
-                                        startIcon={<SelectAllIcon />}
-                                        onClick={() => {
-                                          this.loadClientiGrupaSelectata(
-                                            row["id"]
-                                          );
-                                          this.setState({
-                                            currentGroupId: row["id"],
-                                            numeGrupaCurenta: row["name"],
-                                          });
-                                        }}
-                                      >
-                                        Selectează
-                                      </Button>
+                                return (
+                                  <TableCell
+                                    key={column.id}
+                                    align={column.align}
+                                  >
+                                    {column.id === "select" ? (
+                                      <div>
+                                        <Button
+                                          style={{ marginRight: "0.5rem" }}
+                                          color="primary"
+                                          variant="outlined"
+                                          startIcon={<SelectAllIcon />}
+                                          onClick={() => {
+                                            this.loadClientiGrupaSelectata(
+                                              row["id"]
+                                            );
+                                            this.setState({
+                                              currentGroupId: row["id"],
+                                              numeGrupaCurenta: row["name"],
+                                            });
+                                          }}
+                                        >
+                                          Selectează
+                                        </Button>
 
-                                      <Button
-                                        color="secondary"
-                                        variant="outlined"
-                                        startIcon={<DeleteIcon />}
-                                        onClick={()=>
-                                          this.deleteGroup(row["id"])}
-                                      >
-                                        Șterge grupă
-                                      </Button>
-                                    </div>
-                                  ) : null}
-                                  {typeof value === "boolean" && value === true
-                                    ? value === true
-                                      ? "DA"
-                                      : "NU"
-                                    : null}
+                                        <Button
+                                          color="secondary"
+                                          variant="outlined"
+                                          startIcon={<DeleteIcon />}
+                                          onClick={() =>
+                                            this.deleteGroup(row["id"])
+                                          }
+                                        >
+                                          Șterge grupă
+                                        </Button>
+                                      </div>
+                                    ) : null}
+                                    {typeof value === "boolean" &&
+                                    value === true
+                                      ? value === true
+                                        ? "DA"
+                                        : "NU"
+                                      : null}
 
-                                  {column.format && typeof value === "number"
-                                    ? !column.id === "id"
-                                      ? column.format(value)
-                                      : value
-                                    : column.id === "id"
-                                    ? null
-                                    : value}
+                                    {column.format && typeof value === "number"
+                                      ? !column.id === "id"
+                                        ? column.format(value)
+                                        : value
+                                      : column.id === "id"
+                                      ? null
+                                      : value}
+                                  </TableCell>
+                                );
+                              })}
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  rowsPerPageOptions={[10, 25, 100]}
+                  component="div"
+                  count={this.state.groups.length}
+                  rowsPerPage={this.state.rowsPerPage}
+                  page={this.state.page}
+                  onChangePage={this.handleChangePage}
+                  onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                />
+              </Paper>
+              <br></br>
+
+              <div className="container">
+                <div className="left">
+                  <Paper className={classes.paper}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Caută după nume..."
+                      variant="outlined"
+                      onChange={this.handleFilterGroup}
+                    />
+                    <Typography
+                      className={classes.title}
+                      variant="h6"
+                      id="tableTitle"
+                      align="center"
+                    >
+                      Componeță grupă {this.state.numeGrupaCurenta}
+                    </Typography>
+                    <Paper className={classes.root}>
+                      <TableContainer className={classes.container}>
+                        <Table stickyHeader aria-label="sticky table">
+                          <TableHead>
+                            <TableRow>
+                              {columns2.map((column) => (
+                                <TableCell
+                                  key={column.id}
+                                  align={column.align}
+                                  style={{ minWidth: column.minWidth }}
+                                >
+                                  {column.label}
                                 </TableCell>
-                              );
-                            })}
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={this.state.groups.length}
-                rowsPerPage={this.state.rowsPerPage}
-                page={this.state.page}
-                onChangePage={this.handleChangePage}
-                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-              />
+                              ))}
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {this.state.grupaCurenta
+                              .slice(
+                                this.state.page * this.state.rowsPerPage,
+                                this.state.page * this.state.rowsPerPage +
+                                  this.state.rowsPerPage
+                              )
+                              .map((row) => {
+                                return (
+                                  <TableRow
+                                    hover
+                                    role="checkbox"
+                                    tabIndex={-1}
+                                    key={row.code}
+                                  >
+                                    {columns2.map((column) => {
+                                      const value = row[column.id];
+
+                                      return (
+                                        <TableCell
+                                          key={column.id}
+                                          align={column.align}
+                                        >
+                                          {column.id === "moveRight" ? (
+                                            <Button
+                                              startIcon={<ArrowForwardIcon />}
+                                              clientId={row["id"]}
+                                              onClick={() => {
+                                                this.removeFromGroup(row["id"]);
+                                              }}
+                                            ></Button>
+                                          ) : null}
+                                          {typeof value === "boolean" &&
+                                          value === true
+                                            ? value === true
+                                              ? "DA"
+                                              : "NU"
+                                            : null}
+
+                                          {column.format &&
+                                          typeof value === "number"
+                                            ? !column.id === "id"
+                                              ? column.format(value)
+                                              : value
+                                            : column.id === "id"
+                                            ? null
+                                            : value}
+                                        </TableCell>
+                                      );
+                                    })}
+                                  </TableRow>
+                                );
+                              })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <TablePagination
+                        rowsPerPageOptions={[10, 25, 100]}
+                        component="div"
+                        count={this.state.grupaCurenta.length}
+                        rowsPerPage={this.state.rowsPerPage}
+                        page={this.state.page}
+                        onChangePage={this.handleChangePage}
+                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                      />
+                    </Paper>
+                  </Paper>
+                </div>
+
+                <div className="right">
+                  <Paper className={classes.paper}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Caută după nume..."
+                      variant="outlined"
+                      onChange={this.handleFilterUnassignedToGroups}
+                    />
+                    <Typography
+                      className={classes.title}
+                      variant="h6"
+                      id="tableTitle"
+                      align="center"
+                    >
+                      Cursanți neasignați unei grupe
+                    </Typography>
+                    <Paper className={classes.root}>
+                      <TableContainer className={classes.container}>
+                        <Table stickyHeader aria-label="sticky table">
+                          <TableHead>
+                            <TableRow>
+                              {columns3.map((column) => (
+                                <TableCell
+                                  key={column.id}
+                                  align={column.align}
+                                  style={{ minWidth: column.minWidth }}
+                                >
+                                  {column.label}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {this.state.cursantiFaraGrupa
+                              .slice(
+                                this.state.page * this.state.rowsPerPage,
+                                this.state.page * this.state.rowsPerPage +
+                                  this.state.rowsPerPage
+                              )
+                              .map((row) => {
+                                return (
+                                  <TableRow
+                                    hover
+                                    role="checkbox"
+                                    tabIndex={-1}
+                                    key={row.code}
+                                  >
+                                    {columns3.map((column) => {
+                                      const value = row[column.id];
+
+                                      return (
+                                        <TableCell
+                                          key={column.id}
+                                          align={column.align}
+                                        >
+                                          {column.id === "moveLeft" ? (
+                                            <Button
+                                              startIcon={<ArrowBackIcon />}
+                                              clientId={row["id"]}
+                                              onClick={() =>
+                                                this.addToGroup(row["id"])
+                                              }
+                                            ></Button>
+                                          ) : null}
+                                          {typeof value === "boolean" &&
+                                          value === true
+                                            ? value === true
+                                              ? "DA"
+                                              : "NU"
+                                            : null}
+
+                                          {column.format &&
+                                          typeof value === "number"
+                                            ? !column.id === "id"
+                                              ? column.format(value)
+                                              : value
+                                            : column.id === "id"
+                                            ? null
+                                            : value}
+                                        </TableCell>
+                                      );
+                                    })}
+                                  </TableRow>
+                                );
+                              })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <TablePagination
+                        rowsPerPageOptions={[10, 25, 100]}
+                        component="div"
+                        count={this.state.cursantiFaraGrupa.length}
+                        rowsPerPage={this.state.rowsPerPage}
+                        page={this.state.page}
+                        onChangePage={this.handleChangePage}
+                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                      />
+                    </Paper>
+                  </Paper>
+                </div>
+              </div>
             </Paper>
-            <br></br>
-
-            <div className="container">
-              <div className="left">
-                <Paper className={classes.paper}>
-                <TextField
-                    id="outlined-basic"
-                    label="Caută după nume..."
-                    variant="outlined"
-                    onChange={this.handleFilterGroup}
-                  />
-                  <Typography
-                    className={classes.title}
-                    variant="h6"
-                    id="tableTitle"
-                    align="center"
-                  >
-                    Componeță grupă {this.state.numeGrupaCurenta}
-                  </Typography>
-                  <Paper className={classes.root}>
-          
-                    <TableContainer className={classes.container}>
-                      <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                          <TableRow>
-                            {columns2.map((column) => (
-                              <TableCell
-                                key={column.id}
-                                align={column.align}
-                                style={{ minWidth: column.minWidth }}
-                              >
-                                {column.label}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {this.state.grupaCurenta
-                            .slice(
-                              this.state.page * this.state.rowsPerPage,
-                              this.state.page * this.state.rowsPerPage +
-                                this.state.rowsPerPage
-                            )
-                            .map((row) => {
-                              return (
-                                <TableRow
-                                  hover
-                                  role="checkbox"
-                                  tabIndex={-1}
-                                  key={row.code}
-                                >
-                                  {columns2.map((column) => {
-                                    const value = row[column.id];
-
-                                    return (
-                                      <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                      >
-                                        {column.id === "moveRight" ? (
-                                          <Button
-                                            startIcon={<ArrowForwardIcon />}
-                                            clientId={row["id"]}
-                                            onClick={() => {
-                                              this.removeFromGroup(row["id"]);
-                                            }}
-                                          ></Button>
-                                        ) : null}
-                                        {typeof value === "boolean" &&
-                                        value === true
-                                          ? value === true
-                                            ? "DA"
-                                            : "NU"
-                                          : null}
-
-                                        {column.format &&
-                                        typeof value === "number"
-                                          ? !column.id === "id"
-                                            ? column.format(value)
-                                            : value
-                                          : column.id === "id"
-                                          ? null
-                                          : value}
-                                      </TableCell>
-                                    );
-                                  })}
-                                </TableRow>
-                              );
-                            })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                    <TablePagination
-                      rowsPerPageOptions={[10, 25, 100]}
-                      component="div"
-                      count={this.state.grupaCurenta.length}
-                      rowsPerPage={this.state.rowsPerPage}
-                      page={this.state.page}
-                      onChangePage={this.handleChangePage}
-                      onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                    />
-                  </Paper>
-                </Paper>
-              </div>
-
-              <div className="right">
-                <Paper className={classes.paper}>
-                <TextField
-                    id="outlined-basic"
-                    label="Caută după nume..."
-                    variant="outlined"
-                    onChange={this.handleFilterUnassignedToGroups}
-                  />
-                  <Typography
-                    className={classes.title}
-                    variant="h6"
-                    id="tableTitle"
-                    align="center"
-                  >
-                    Cursanți neasignați unei grupe
-                  </Typography>
-                  <Paper className={classes.root}>
-                    <TableContainer className={classes.container}>
-                      <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                          <TableRow>
-                            {columns3.map((column) => (
-                              <TableCell
-                                key={column.id}
-                                align={column.align}
-                                style={{ minWidth: column.minWidth }}
-                              >
-                                {column.label}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {this.state.cursantiFaraGrupa
-                            .slice(
-                              this.state.page * this.state.rowsPerPage,
-                              this.state.page * this.state.rowsPerPage +
-                                this.state.rowsPerPage
-                            )
-                            .map((row) => {
-                              return (
-                                <TableRow
-                                  hover
-                                  role="checkbox"
-                                  tabIndex={-1}
-                                  key={row.code}
-                                >
-                                  {columns3.map((column) => {
-                                    const value = row[column.id];
-
-                                    return (
-                                      <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                      >
-                                        {column.id === "moveLeft" ? (
-                                          <Button
-                                            startIcon={<ArrowBackIcon />}
-                                            clientId={row["id"]}
-                                            onClick={() =>
-                                              this.addToGroup(row["id"])
-                                            }
-                                          ></Button>
-                                        ) : null}
-                                        {typeof value === "boolean" &&
-                                        value === true
-                                          ? value === true
-                                            ? "DA"
-                                            : "NU"
-                                          : null}
-
-                                        {column.format &&
-                                        typeof value === "number"
-                                          ? !column.id === "id"
-                                            ? column.format(value)
-                                            : value
-                                          : column.id === "id"
-                                          ? null
-                                          : value}
-                                      </TableCell>
-                                    );
-                                  })}
-                                </TableRow>
-                              );
-                            })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                    <TablePagination
-                      rowsPerPageOptions={[10, 25, 100]}
-                      component="div"
-                      count={this.state.cursantiFaraGrupa.length}
-                      rowsPerPage={this.state.rowsPerPage}
-                      page={this.state.page}
-                      onChangePage={this.handleChangePage}
-                      onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                    />
-                  </Paper>
-                </Paper>
-              </div>
-            </div>
-          </Paper>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div style={{ minHeight: "90vh" }}>
+          <Typography variant="h2" style={{ paddingTop: "15rem" }}>
+            Nu aveți acces la această funcționalitate.
+          </Typography>
+        </div>
+      );
+    }
   }
 }
 export default withStyles(register)(Series);

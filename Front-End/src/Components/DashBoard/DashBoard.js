@@ -18,15 +18,34 @@ import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import NotInterestedIcon from "@material-ui/icons/NotInterested";
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-//import { clientDetails } from "../../App";
-import InfoIcon from "@material-ui/icons/Info";
+import CropSquareIcon from "@material-ui/icons/CropSquare";
 
-//export const clientDetails = JSON.parse(localStorage.getItem("client"));
-export const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+import CheckIcon from "@material-ui/icons/Check";
+
 export const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
 export const styles = (theme) => ({
   root: {
     flexGrow: 1,
+  },
+
+  container2: {
+    display: "-webkit-inline-box",
+    flexWrap: "wrap",
+    "& > *": {
+      margin: "0.5rem",
+      width: "7rem",
+      height: "7rem",
+    },
+  },
+  container3: {
+    paddingTop: "1rem",
+    display: "-webkit-inline-box",
+    flexWrap: "wrap",
+    "& > *": {
+      margin: "0.5rem",
+      width: "100%",
+      height: "100%",
+    },
   },
   paper: {
     padding: 20,
@@ -71,7 +90,7 @@ class Dashboard extends Component {
       );
       const data = await response.json();
 
-      console.log(data);
+      //console.log(data);
 
       this.setState({
         id: data.id,
@@ -105,10 +124,7 @@ class Dashboard extends Component {
 
       const data = await response.json();
       if (response.status === 200) {
-        const employeeInfo = localStorage.setItem(
-          "employeeInfo",
-          JSON.stringify(data)
-        );
+        localStorage.setItem("employeeInfo", JSON.stringify(data));
       }
     } catch (err) {
       console.log(err);
@@ -129,14 +145,9 @@ class Dashboard extends Component {
 
       const data = await response.json();
       if (response.status === 200) {
-        localStorage.setItem(
-          "clientInfo",
-          JSON.stringify(data)
-       
-        );
-
-      } else if ( data.message === "not found") {
-        localStorage.setItem("clientInfo", 'not found')
+        localStorage.setItem("clientInfo", JSON.stringify(data));
+      } else if (data.message === "not found") {
+        localStorage.setItem("clientInfo", JSON.stringify({}));
       }
     } catch (err) {
       console.log(err);
@@ -144,30 +155,186 @@ class Dashboard extends Component {
   };
 
   componentDidMount() {
-
-    const clientDetails = JSON.parse(localStorage.getItem('client'));
-    
+    const clientDetails = JSON.parse(localStorage.getItem("client"));
 
     this.loadUserByEmail(this.props.location.state.email);
- 
-    console.log(clientDetails);
+
     if (clientDetails.result.role === "client") {
       this.loadClientInfo(clientDetails.result.id);
-  
-      
     } else {
       this.loadEmployeeInfo(clientDetails.result.id);
     }
   }
 
   render() {
-
-    
-    const clientDetails = JSON.parse(localStorage.getItem("client"));
+    //const clientDetails = JSON.parse(localStorage.getItem("client"));
+    const client = JSON.parse(localStorage.getItem("client"));
     const { classes } = this.props;
-  
-  
-    if (this.props.location.state !== undefined)
+    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+
+    if (client.result.role === "admin")
+      return (
+        <div className={classes.bg}>
+          <Paper className={classes.paper}>
+            <Typography variant="h4"> Bun venit,</Typography>
+            <Typography variant="h5" style={{ color: "gray" }}>
+              {client.result.username} - "MANAGER"
+            </Typography>
+            <div style={{paddingTop:"2rem"}}className={classes.container2}>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/3GKKPpo.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/FAFYicv.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/FzVUMzs.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/o8yn9Yo.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/Xci4I9E.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+            </div>
+          </Paper>
+          <Paper style={{ marginTop: "3rem" }} className={classes.paper}>
+            <Typography variant="h5">
+              {" "}
+              Pentru a accesa funcționalitățile disponibile, utilizați meniul
+              din stânga sus
+            </Typography>
+            <div className={classes.container3}>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/kjsD5Ru.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+            </div>
+          </Paper>
+        </div>
+      );
+    else if (client.result.role === "instructor")
+      return    ( <div className={classes.bg}>
+      <Paper className={classes.paper}>
+        <Typography variant="h4"> Bun venit,</Typography>
+        <Typography variant="h5" style={{ color: "gray" }}>
+          {client.result.username} - "INSTUCTOR"
+        </Typography>
+        <div style={{paddingTop:"2rem"}}className={classes.container2}>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/3GKKPpo.png"}
+              ></img>
+            }{" "}
+          </Paper>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/FAFYicv.png"}
+              ></img>
+            }{" "}
+          </Paper>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/FzVUMzs.png"}
+              ></img>
+            }{" "}
+          </Paper>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/o8yn9Yo.png"}
+              ></img>
+            }{" "}
+          </Paper>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/Xci4I9E.png"}
+              ></img>
+            }{" "}
+          </Paper>
+        </div>
+      </Paper>
+      <Paper style={{ marginTop: "3rem" }} className={classes.paper}>
+        <Typography variant="h5">
+          {" "}
+          Pentru a accesa funcționalitățile disponibile, utilizați meniul
+          din stânga sus
+        </Typography>
+        <div className={classes.container3}>
+          <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+            {
+              <img
+                alt="2"
+                height="100%"
+                width="100%"
+                src={"https://i.imgur.com/kjsD5Ru.png"}
+              ></img>
+            }{" "}
+          </Paper>
+        </div>
+      </Paper>
+    </div>)
+    else if (this.props.location.state !== undefined)
       return (
         <div className={classes.bg}>
           <Grid container spacing={3}>
@@ -177,8 +344,8 @@ class Dashboard extends Component {
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
                       <Typography align="justify">
-                        Incă nu te-ai înscris pentru una din categoriile
-                        diponibile. Apasă pe butonul alaturat pentru a face o
+                        Incă nu v-ați înscris pentru una din categoriile
+                        diponibile. Folosiți butonul alaturat pentru a face o
                         cerere de înscriere!
                       </Typography>
                     </Grid>
@@ -204,33 +371,146 @@ class Dashboard extends Component {
                 </Paper>
               ) : (
                 <Paper className={classes.paper}>
-                  Ai trimis deja o cerere!
+                  <Button endIcon={<CheckIcon />}>
+                    {" "}
+                    Ai trimis deja o cerere!
+                  </Button>
                 </Paper>
               )}
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                <Typography align="left"> {"Status cerere:"}</Typography>
+              <Paper className={classes.paper} >
+                <Typography align="middle">
+                  {" "}
+                  {Object.keys(clientInfo).length === 0
+                    ? "Status cerere: NETRIMISĂ"
+                    : "Status cerere: ACCEPTATĂ"}
+                </Typography>
+
+                <Paper
+                  style={{
+                    padding: "5px",
+                    marginInline: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    width: "fit-content",
+                  }}
+                  className={classes.paper}
+                >
+                  {Object.keys(clientInfo).length === 0 ? (
+                    <Avatar
+                      align="middle"
+                      style={{
+                        align: "center",
+
+                        height: "3rem",
+                        width: "3rem",
+                      }}
+                    >
+                      <CropSquareIcon
+                        style={{ height: "2rem", width: "2rem" }}
+                      />
+                    </Avatar>
+                  ) : (
+                    <Avatar
+                      align="middle"
+                      style={{
+                        align: "center",
+                        backgroundColor: "green",
+                        height: "3rem",
+                        width: "3rem",
+                      }}
+                    >
+                      <AssignmentTurnedInIcon
+                        style={{ height: "2rem", width: "2rem" }}
+                      />
+                    </Avatar>
+                  )}
+                </Paper>
                 <List>
                   <ListItem>
                     <ListItemText
                       primary="Data trimitere:"
-                      secondary="Jan 9, 2014"
+                      secondary="08/06/2021"
+                      align="middle"
                     />
-
-                    <ListItemText primary="Stare:"></ListItemText>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      align="middle"
+                      primary="Cerearea dumneavoastră a fost acceptată în data de 9/06/2021"
+                    ></ListItemText>
                   </ListItem>
                 </List>
               </Paper>
             </Grid>
             <Grid item xs={6}>
-              <Paper className={classes.paper}>
-                <Typography> {randomText}</Typography>
+              <Paper style={{ margin: "1rem" }} className={classes.paper}>
+                <Typography align="justify"> {randomText}</Typography>
               </Paper>
             </Grid>
             <Grid item xs={6}>
-              <Paper className={classes.paper}>
-                <InfoIcon fontSize="large"></InfoIcon>
+              <Paper
+                className={classes.paper}
+                style={{
+                  width: "fit-content",
+                  height: "auto",
+                  display: "flex",
+                }}
+              >
+                <div className={classes.container2}>
+                  <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                    {
+                      <img
+                        alt="2"
+                        height="100%"
+                        width="100%"
+                        src={"https://i.imgur.com/3GKKPpo.png"}
+                      ></img>
+                    }{" "}
+                  </Paper>
+                  <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                    {
+                      <img
+                        alt="2"
+                        height="100%"
+                        width="100%"
+                        src={"https://i.imgur.com/FAFYicv.png"}
+                      ></img>
+                    }{" "}
+                  </Paper>
+                  <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                    {
+                      <img
+                        alt="2"
+                        height="100%"
+                        width="100%"
+                        src={"https://i.imgur.com/FzVUMzs.png"}
+                      ></img>
+                    }{" "}
+                  </Paper>
+                  <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                    {
+                      <img
+                        alt="2"
+                        height="100%"
+                        width="100%"
+                        src={"https://i.imgur.com/o8yn9Yo.png"}
+                      ></img>
+                    }{" "}
+                  </Paper>
+                  <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                    {
+                      <img
+                        alt="2"
+                        height="100%"
+                        width="100%"
+                        src={"https://i.imgur.com/Xci4I9E.png"}
+                      ></img>
+                    }{" "}
+                  </Paper>
+                </div>
               </Paper>
             </Grid>
             <Grid item xs={12}>
@@ -239,13 +519,24 @@ class Dashboard extends Component {
                 <List>
                   <ListItem>
                     <ListItemAvatar>
-                      <Avatar>
+                      <Avatar s>
+                        <CropSquareIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary="Cerere netrimisă - Nu a fost trimisă o cerere de înscriere către sistem."
+                      secondary="Accesați formularul de înscriere din prima secțiune a paginii."
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar style={{ backgroundColor: "#CDA466" }}>
                         <HourglassEmptyIcon />
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary="În asteptare"
-                      secondary="Jan 9, 2014"
+                      primary="Cerere în așteptare - Cererea trimisă este evaluată de personalul autorizat."
+                      secondary="Durata de evaluare poate poate dura până la 3 zile de la trimiterea cererii."
                     />
                   </ListItem>
                   <ListItem>
@@ -254,7 +545,10 @@ class Dashboard extends Component {
                         <AssignmentTurnedInIcon />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary="Acceptată" secondary="Jan 9, 2014" />
+                    <ListItemText
+                      primary="Cerere acceptată - Puteți accesa planificatorul de ședințe și testele de verificare."
+                      secondary="Ați fost înregistrat în sistem. "
+                    />
                   </ListItem>
                   <ListItem>
                     <ListItemAvatar>
@@ -262,7 +556,10 @@ class Dashboard extends Component {
                         <NotInterestedIcon />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary="Refuzată" secondary="Jan 9, 2014" />
+                    <ListItemText
+                      primary="Cerere refuzată - Anumite informații au fost completate incorect sau reprezintă o problemă."
+                      secondary="Puteți trimite o altă cerere dacă informațiile au fost incorecte."
+                    />
                   </ListItem>
                 </List>
               </Paper>
@@ -270,7 +567,6 @@ class Dashboard extends Component {
           </Grid>
         </div>
       );
-    else return <div>You are not Logged In</div>;
   }
 }
 

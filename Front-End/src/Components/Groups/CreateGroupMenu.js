@@ -5,9 +5,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { TextField } from "@material-ui/core";
-
 import "date-fns";
-import EditIcon from "@material-ui/icons/Edit";
 import server from "../../ServerName/ServerName";
 import { FormControl } from "@material-ui/core";
 
@@ -15,7 +13,7 @@ export default function CreateGroupMenu({ loadData, seriesId, loadGroups }) {
   const [open, setOpen] = useState(false);
 
   const [name, setName] = useState("");
-  const [date, setDate] = useState("");
+ 
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -26,9 +24,7 @@ export default function CreateGroupMenu({ loadData, seriesId, loadGroups }) {
 
   const handleChangeName = (e) => setName(e.target.value);
 
-  const handleChangeDate = (e) => {
-    setDate(e.target.value);
-  };
+  
 
   const createGroup = async (id) => {
     try {

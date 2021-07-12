@@ -96,8 +96,8 @@ class Series extends Component {
       clientsNotAssignedToSeries: [],
       currentSeriesId: null,
       inputText: "",
-      inputText2:"",
-      currentSeriesName:"",
+      inputText2: "",
+      currentSeriesName: "",
     };
 
     this.handleFilter = (e) => {
@@ -105,7 +105,6 @@ class Series extends Component {
         inputText: e.target.value,
       });
       if (this.state.inputText.length < 2) {
-       
         this.loadClientiSerieSelectata(this.state.currentSeriesId);
       } else {
         let clone = JSON.parse(JSON.stringify(this.state.clientsFromSeries));
@@ -124,10 +123,11 @@ class Series extends Component {
         inputText2: e.target.value,
       });
       if (this.state.inputText2.length < 2) {
-       
         this.loadClientiFaraSerie();
       } else {
-        let clone = JSON.parse(JSON.stringify(this.state.clientsNotAssignedToSeries));
+        let clone = JSON.parse(
+          JSON.stringify(this.state.clientsNotAssignedToSeries)
+        );
         const result = clone.filter((value) =>
           value.last_name.toString().includes(this.state.inputText2)
         );
@@ -136,7 +136,7 @@ class Series extends Component {
           clientsNotAssignedToSeries: result,
         });
       }
-    }
+    };
     this.loadSeries = async () => {
       try {
         const requestOptions = {
@@ -153,8 +153,6 @@ class Series extends Component {
         } else {
           console.log("bad request");
         }
-        console.log("serii aici");
-        console.log(this.state.series);
       } catch (err) {
         console.log(err);
       }
@@ -179,8 +177,6 @@ class Series extends Component {
         } else {
           console.log("bad request");
         }
-
-        console.log(this.state.clientsFromSeries);
       } catch (err) {
         console.log(err);
       }
@@ -272,8 +268,6 @@ class Series extends Component {
         } else {
           console.log("bad request");
         }
-        console.log("clienti fara serie");
-        console.log(this.state.clientsNotAssignedToSeries);
       } catch (err) {
         console.log(err);
       }
@@ -313,8 +307,7 @@ class Series extends Component {
         this.setState({
           data: data,
         });
-        console.log("clienti aici");
-        console.log(this.state.data);
+
       } catch (err) {
         alert(err.toString());
       }
@@ -327,7 +320,10 @@ class Series extends Component {
     this.loadData();
   }
   render() {
+    const client = JSON.parse(localStorage.getItem("client"));
     const { classes } = this.props;
+
+    if(client.result.role==="admin"){
     return (
       <div
         id="registerBg"
@@ -400,7 +396,7 @@ class Series extends Component {
                                           );
                                           this.setState({
                                             currentSeriesId: row["id"],
-                                            currentSeriesName:row["name"],
+                                            currentSeriesName: row["name"],
                                           });
                                         }}
                                       >
@@ -465,7 +461,7 @@ class Series extends Component {
               />
             </Paper>
             <br></br>
-
+                      
             <div className="container">
               <div className="left">
                 <Paper className={classes.paper}>
@@ -572,7 +568,7 @@ class Series extends Component {
 
               <div className="right">
                 <Paper className={classes.paper}>
-                <TextField
+                  <TextField
                     id="outlined-basic"
                     label="Caută după nume..."
                     variant="outlined"
@@ -671,10 +667,18 @@ class Series extends Component {
                 </Paper>
               </div>
             </div>
+           
           </Paper>
         </div>
       </div>
-    );
+    );}
+    else {return(
+      <div style={{ minHeight: "90vh" }}>
+      <Typography variant="h2" style={{ paddingTop: "15rem" }}>
+        Nu aveți acces la această funcționalitate.
+      </Typography>
+    </div>)}
+    
   }
 }
 export default withStyles(register)(Series);

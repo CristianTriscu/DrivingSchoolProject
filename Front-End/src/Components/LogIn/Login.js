@@ -17,9 +17,7 @@ import VisibilityOffTwoToneIcon from "@material-ui/icons/VisibilityOffTwoTone";
 import CloseIcon from "@material-ui/icons/Close";
 import { withRouter } from "react-router-dom";
 
-function shoot() {
-  alert("succes!");
-}
+
 class Login extends Component {
   state = {
     email: "",
@@ -55,12 +53,10 @@ class Login extends Component {
     return true;
   };
 
-  
-
   submitSignIn = async (e) => {
     try {
       e.preventDefault();
-      shoot();
+
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,7 +75,6 @@ class Login extends Component {
         this.setState({
           isLoggedIn: true,
         });
-     
       } else {
         this.setState({
           errorOpen: true,
@@ -90,8 +85,6 @@ class Login extends Component {
       console.log(err);
     }
   };
-
-  
 
   render() {
     const { classes } = this.props;

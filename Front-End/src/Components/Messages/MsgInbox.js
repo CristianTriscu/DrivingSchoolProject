@@ -15,7 +15,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 import useForceUpdate from "use-force-update";
-
+import MarkunreadIcon from "@material-ui/icons/Markunread";
+import MailOutlineIcon from "@material-ui/icons/MailOutline";
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
@@ -36,16 +37,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const customDate = (date) => {
-  let x = "";
-  x = date.substring(0, 20);
-  return x;
-};
+
 
 export default function MsgInbox(props) {
   const classes = useStyles();
 
   let usedId = 0;
+  const userInfo = JSON.parse(localStorage.getItem("client"));
+  if (userInfo) {
+    var userRole = userInfo.result.role;
+  }
+
   const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
   if (clientInfo) {
     var clientId = clientInfo.id;
@@ -55,13 +57,45 @@ export default function MsgInbox(props) {
   if (employeeInfo) {
     var employeeId = employeeInfo.id;
   }
-  if (clientId) usedId = clientId;
-  else if (employeeId) usedId = employeeId;
+  if (userRole === "client") usedId = clientId;
+  else if (userRole === "instructor") usedId = employeeId;
   const [open, setOpen] = React.useState(false);
   const [data, setData] = useState([1, 2, 3]);
-  console.log("aici bro");
-  console.log(clientId);
-  console.log(data);
+
+  const markAsRead = async (id) => {
+    try {
+      const requestOptions = {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+      };
+      const response = await fetch(server + "markAsRead/" + id, requestOptions);
+      const data = await response.json();
+      if (data) {
+        loadMessages(usedId);
+      }
+    } catch (er) {
+      console.log(er);
+    }
+  };
+
+  const markAsUnRead = async (id) => {
+    try {
+      const requestOptions = {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+      };
+      const response = await fetch(
+        server + "markAsUnRead/" + id,
+        requestOptions
+      );
+      const data = await response.json();
+      if (data) {
+        loadMessages(usedId);
+      }
+    } catch (er) {
+      console.log(er);
+    }
+  };
 
   const loadMessages = async (id) => {
     try {
@@ -85,11 +119,9 @@ export default function MsgInbox(props) {
   };
   useEffect(() => {
     loadMessages(usedId);
-  }, []);
+  }, [usedId]);
 
-  const handleClick = () => {
-    setOpen(true);
-  };
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -111,7 +143,7 @@ export default function MsgInbox(props) {
         server + "deleteMessage/" + id,
         requestOptions
       );
-      const data = await response.json();
+      await response.json();
       if (response.status === "200") {
         forceUpdate();
         setOpen(...true);
@@ -123,15 +155,13 @@ export default function MsgInbox(props) {
     }
   };
   return (
-    // <div>
-    //  {data.map((elem) => (
-    //          <div>{elem.content}</div>
-    //           ))}
-    // </div>
-
     <Paper
       className={classes.paper}
-      style={{ maxHeight: "90vh", overflow: "auto" }}
+      style={{
+        maxHeight: "90vh",
+        overflow: "auto",
+        backgroundColor: "#9B9DC0",
+      }}
     >
       <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="success">
@@ -139,40 +169,144 @@ export default function MsgInbox(props) {
         </Alert>
       </Snackbar>
       <List className={classes.root} style={{ overflow: "auto" }}>
-        {data.map((elem) => (
-          <div>
-            {"-"}
+        {data.map((elem) =>
+          elem.isRead === true ? (
+            <div style={{ paddingTop: "1rem" }}>
+              <ListItem
+                style={{ backgroundColor: "#F6F7F8", borderRadius: "1rem" }}
+                alignItems="flex-start"
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    alt="Sistem"
+                    style={{ backgroundColor: "#9B9DC0" }}
+                    src="/static/images/avatar/1.jpg"
+                  />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={new Date(elem.createdAt).toLocaleDateString("RO")}
+                  secondary={
+                    <React.Fragment>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        className={classes.inline}
+                        color="textPrimary"
+                      >
+                        Notificare Sistem
+                      </Typography>
+                      {" - " + elem.content}
+                    </React.Fragment>
+                  }
+                />
 
-            <ListItem alignItems="flex-start">
-              <ListItemAvatar>
-                <Avatar alt="Sistem" src="/static/images/avatar/1.jpg" />
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  (elem.createdAt + "").substring(0, 10)
-                 
-                }
-                secondary={
-                  <React.Fragment>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      className={classes.inline}
-                      color="textPrimary"
-                    >
-                      Notificare Sistem
-                    </Typography>
-                    {" - " + elem.content}
-                  </React.Fragment>
-                }
-              />
-              <Button onClick={() => deleteNotification(elem.id)}>
-                <DeleteIcon></DeleteIcon>
-              </Button>
-            </ListItem>
-            <Divider variant="inset" component="li" />
-          </div>
-        ))}
+                {window.innerWidth > 700 ? (
+                  elem.isRead === true ? (
+                    <div>
+                      <Button
+                        variant="outlined"
+                        startIcon={<MarkunreadIcon />}
+                        onClick={() => {
+                          markAsUnRead(elem.id);
+                        }}
+                      >
+                        Marchează necitit
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <Button
+                        variant="outlined"
+                        startIcon={<MailOutlineIcon />}
+                        onClick={() => {
+                          markAsRead(elem.id);
+                        }}
+                      >
+                        machează citit
+                      </Button>
+                    </div>
+                  )
+                ) : null}
+
+                {window.innerWidth > 700 ? (
+                  <Button
+                    variant="outlined"
+                    onClick={() => deleteNotification(elem.id)}
+                  >
+                    <DeleteIcon></DeleteIcon>
+                  </Button>
+                ) : null}
+              </ListItem>
+              <Divider variant="inset" component="li" />
+            </div>
+          ) : (
+            <div style={{ paddingTop: "1rem" }}>
+              <ListItem
+                style={{ backgroundColor: "#c9cbf2", borderRadius: "1rem" }}
+                alignItems="flex-start"
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    style={{ backgroundColor: "#9B9DC0" }}
+                    alt="Sistem"
+                    src="/static/images/avatar/1.jpg"
+                  />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={new Date(elem.createdAt).toLocaleDateString("RO")}
+                  secondary={
+                    <React.Fragment>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        className={classes.inline}
+                        color="textPrimary"
+                      >
+                        Notificare Sistem
+                      </Typography>
+                      {" - " + elem.content}
+                    </React.Fragment>
+                  }
+                />
+
+                {window.innerWidth > 700 ? (
+                  elem.isRead === true ? (
+                    <div>
+                      <Button
+                        onClick={() => {
+                          markAsUnRead(elem.id);
+                        }}
+                      >
+                        marchează necitit
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <Button
+                        variant="outlined"
+                        startIcon={<MailOutlineIcon />}
+                        onClick={() => {
+                          markAsRead(elem.id);
+                        }}
+                      >
+                        machează citit
+                      </Button>
+                    </div>
+                  )
+                ) : null}
+                {window.innerWidth > 700 ? (
+                  <Button
+                    variant="outlined"
+                    onClick={() => deleteNotification(elem.id)}
+                  >
+                    <DeleteIcon></DeleteIcon>
+                  </Button>
+                ) : null}
+              </ListItem>
+              <Divider variant="inset" component="li" />
+            </div>
+          )
+        )}
       </List>
     </Paper>
   );

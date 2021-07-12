@@ -157,8 +157,7 @@ class Demo extends React.PureComponent {
           this.setState({
             data: data,
           });
-          //console.log(data);
-        } else console.log("ceva nu e bine");
+        } else console.log("connot load data");
       } catch (err) {
         alert(err.toString());
       }
@@ -264,7 +263,7 @@ class Demo extends React.PureComponent {
       const response = await fetch(server + "requests/" + id, requestOptions);
       const data = await response.json();
 
-      console.log(data);
+      
 
       if (data.message === "deleted" && response.status === 200) {
         this.loadData(6);
@@ -349,26 +348,32 @@ class Demo extends React.PureComponent {
 
   render() {
     const clientDetails = JSON.parse(localStorage.getItem("client"));
-    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+    //const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
     const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
-    console.log("clientDetails here");
-    console.log(clientDetails);
-    console.log("employeeInfo here");
-    console.log(employeeInfo);
-    console.log("client info here");
-    console.log(clientInfo);
+    
+ 
+      const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+
     const {
       currentDate,
       data,
       confirmationVisible,
-      editingFormVisible,
+      //editingFormVisible,
       startDayHour,
       endDayHour,
     } = this.state;
     const { classes } = this.props;
- 
+
+    if(Object.keys(clientInfo).length === 0){
+      return(
+        <div style={{minHeight:"90vh"}}>
+          <Typography variant="h2" style={{paddingTop:"15rem"}}>
+          Încă nu aveți acces la această funcționalitate.
+          </Typography>
+          </div>
+      )
+    }else{
     return (
-     
       <div className={classes.bg}>
         {clientDetails.result.role === "client" ? (
           <Paper className={classes.paper}>
@@ -400,14 +405,15 @@ class Demo extends React.PureComponent {
           <Scheduler data={data} locale={"en-US"} minHeight="100vh">
             {clientDetails.result.role === "client" ? (
               <AppointmentFormv2 loadData={this.loadData}></AppointmentFormv2>
-            ) : (<div>
-              <WaitingList
-                acceptRequest={this.acceptRequest}
-                deleteRequest={this.DeleteAppointmentById}
-                data={data}
-              ></WaitingList>
-              <br></br>
-              <UnavailablePeriodForm loadData={this.loadData}/>
+            ) : (
+              <div>
+                <WaitingList
+                  acceptRequest={this.acceptRequest}
+                  deleteRequest={this.DeleteAppointmentById}
+                  data={data}
+                ></WaitingList>
+                <br></br>
+                <UnavailablePeriodForm loadData={this.loadData} />
               </div>
             )}
 
@@ -437,7 +443,10 @@ class Demo extends React.PureComponent {
                 showCloseButton
               ></AppointmentTooltip>
             ) : (
-              <AppointmentTooltip showCloseButton showDeleteButton></AppointmentTooltip>
+              <AppointmentTooltip
+                showCloseButton
+                showDeleteButton
+              ></AppointmentTooltip>
             )}
             <Toolbar />
             <DateNavigator></DateNavigator>
@@ -470,7 +479,7 @@ class Demo extends React.PureComponent {
           </Dialog>
         </Paper>
       </div>
-    );
+    );}
   }
 }
 

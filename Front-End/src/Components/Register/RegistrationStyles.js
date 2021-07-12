@@ -132,10 +132,10 @@ export const register = theme => ({
     }
   },
   error: {
-    border: `1.2px solid ${red[900]}`,
+    border: `3px solid #d50000`,
     background: "rgba(169,198,217,0.29457423)",
-    color: red[900],
-    fontSize: "14px",
+    color: "#d50000",
+    fontSize: "20px",
     fontWeight: 400,
     fontFamily: "Raleway, sans-serif",
     display: "flex",

@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import { useState } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Route, Switch, useLocation } from "react-router-dom";
 import WelcomePage from "./Components/WelcomePage/WelcomePage";
 import Navbar from "./Components/Navbar/Navbar";
 import Profile from "./Components/Profile/Profile";
@@ -16,8 +15,54 @@ import GenerateDocuments from "./Components/Documents/GenerateDocuments";
 import Series from "./Components/Series/Series";
 import Groups from "./Components/Groups/Groups";
 import ClientsTable from "./Components/ClientsTable/ClientsTable";
+import { makeStyles } from "@material-ui/core/styles";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 function App() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    // if not a hash link, scroll to top
+    if (hash === "") {
+      window.scrollTo(0, 0);
+    }
+    // else scroll to id
+    else {
+      setTimeout(() => {
+        const id = hash.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView();
+        }
+      }, 0);
+    }
+  }, [hash]);
+  const useStyles = makeStyles((theme) => ({
+    root: {
+      width: "100%",
+      "& > * + *": {
+        marginTop: theme.spacing(2),
+      },
+    },
+  }));
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(true);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
   return (
     <BrowserRouter>
       <Switch>
@@ -147,6 +192,17 @@ function App() {
               <div className="App">
                 {" "}
                 <Navbar isAuth={true} />
+                <div>
+                  <Snackbar
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                  >
+                    <Alert onClose={handleClose} severity="success">
+                      V-ați autentificat cu succes!
+                    </Alert>
+                  </Snackbar>
+                </div>
                 <Dashboard />
                 <Footer />
               </div>
@@ -237,6 +293,22 @@ function App() {
                 {" "}
                 <Navbar isAuth={true} />
                 <MsgInbox />
+                <Footer />
+              </div>
+            );
+          }}
+        />
+
+        <Route
+          path="/-about"
+          exact={true}
+          render={() => document.getElementById("about").scrollIntoView()}
+          component={() => {
+            return (
+              <div className="App">
+                {" "}
+                <Navbar isAuth={false} />
+                <WelcomePage />
                 <Footer />
               </div>
             );

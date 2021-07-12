@@ -3,18 +3,13 @@ import {
   Packer,
   Document,
   HeadingLevel,
-  VerticalAlign,
-  HorizontalPositionAlign,
 } from "docx";
 import { Paragraph } from "docx";
 import {
-  ThickUnderline,
   AlignmentType,
-  TabStopPosition,
-  TabStopType,
   TextRun,
 } from "docx";
-import { Alignment } from "docx";
+
 
 export default function generateDeclaratieProprieRaspundere() {
   const doc = new Document({
@@ -149,7 +144,7 @@ export default function generateDeclaratieProprieRaspundere() {
   });
 
   Packer.toBlob(doc).then((blob) => {
-    console.log(blob);
+
     saveAs(blob, "DECLARATIE PROPRIE RASPUNDERE.docx");
     console.log("Document created successfully");
   });

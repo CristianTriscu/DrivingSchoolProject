@@ -158,7 +158,9 @@ export const message = sequelize.define("messages", {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     primaryKey: true,
+
   },
+  isRead:{type:Sequelize.BOOLEAN},
   content:{type:Sequelize.STRING},
 
 });

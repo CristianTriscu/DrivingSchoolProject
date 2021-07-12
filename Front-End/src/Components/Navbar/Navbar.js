@@ -5,23 +5,50 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import MenuIcon from "@material-ui/icons/Menu";
-import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import { useHistory } from "react-router-dom";
 import TemporaryDrawer from "../TemporaryDrawer/TemporaryDrawer";
-import server from "../../ServerName/ServerName"
+import server from "../../ServerName/ServerName";
+import ContactPhoneIcon from "@material-ui/icons/ContactPhone";
+import InfoIcon from "@material-ui/icons/Info";
+import InputIcon from "@material-ui/icons/Input";
+import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
+import { Paper } from "@material-ui/core";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { useTheme } from "@material-ui/core/styles";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
-//const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
-//const clientId = clientInfo.id;
 const useStyles = makeStyles((theme) => ({
+  root3: {
+    display: "-webkit-inline-box",
+    flexWrap: "wrap",
+    paddingLeft: theme.spacing(22),
+    "& > *": {
+      margin: theme.spacing(1),
+      width: theme.spacing(25),
+      height: theme.spacing(25),
+    },
+  },
+
+  root: {
+    display: "-webkit-inline-box",
+    flexWrap: "wrap",
+    "& > *": {
+      margin: theme.spacing(1),
+      width: theme.spacing(20),
+      height: theme.spacing(20),
+    },
+  },
   grow: {
     flexGrow: 1,
   },
@@ -87,62 +114,113 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PrimarySearchAppBar(props) {
-
   let usedId = 0;
-  const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+  let clientInfo;
+  let userInfo;
+  let role;
+
+  if(localStorage.getItem("client")){
+  userInfo = JSON.parse(localStorage.getItem("client"))}
+
+  if(localStorage.getItem("clientInfo")){
+    clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+    
+    if(userInfo){
+    role = userInfo.result.role}
+    else 
+    role = null;
+  }
+
+  
   if (clientInfo) {
     var clientId = clientInfo.id;
   }
+
 
   const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
   if (employeeInfo) {
     var employeeId = employeeInfo.id;
   }
-  if (clientId) usedId = clientId;
-  else if (employeeId) usedId = employeeId;
 
-
+  if ( role==="client") usedId = clientId;
+  else if (role==="instructor") usedId = employeeId;
 
   const history = useHistory();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [noOfMessages, setNoOfMessages] =React.useState(0);
+  const [noOfMessages, setNoOfMessages] = React.useState(0);
   const [isLoggedIn, setLogIn] = useState(false);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const [open, setOpen] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClickOpen2 = () => {
+    setOpen2(true);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(false);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const moveTo = (sectionName) => {
+    let section = document.getElementById(sectionName);
+    if (section === null) {
+      if (sectionName === "about") {
+        handleClickOpen();
+        return;
+      } else {
+        handleClickOpen2();
+        return;
+      }
+    }
+    if (section) {
+      section.scrollIntoView();
+    } else {
+      history.push("/");
+      section.scrollIntoView();
+    }
+  };
+
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMessagesInbox = () =>[
-    history.push("/Messages")
-  ]
+  const handleMessagesInbox = () => [history.push("/Messages")];
 
-  const handleSignOut = (props) => {
+  const handleSignOut = () => {
     setLogIn(false);
 
     history.push("/DashboardNotAuth");
     localStorage.setItem("driverEmail", "");
-    localStorage.setItem('client',"");
+    localStorage.setItem("client", "");
   };
 
-
   useEffect(() => {
-    if (props !== null && props.isAuth == true) {
+    if (props !== null && props.isAuth === true) {
       setLogIn(true);
     }
     //verificare daca clientul e logat
     loadNumberOfMessages(usedId);
-  });
+  }, [props, usedId]);
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
- 
   const loadNumberOfMessages = async (id) => {
     try {
       const requestOptions = {
@@ -150,7 +228,7 @@ export default function PrimarySearchAppBar(props) {
         headers: { "Content-Type": "application/json" },
       };
       const response = await fetch(
-        server + "getMessages/" + id,
+        server + "getUnreadMessages/" + id,
         requestOptions
       );
       const data = await response.json();
@@ -162,12 +240,7 @@ export default function PrimarySearchAppBar(props) {
     }
   };
 
-  const handleProfileClick = () => {
-    history.push({
-      pathname: "/Profile",
-      state: { email: localStorage.getItem("driverEmail") },
-    });
-  };
+  
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -189,12 +262,13 @@ export default function PrimarySearchAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleProfileClick}>Profil</MenuItem>
-      <MenuItem onClick={handleSignOut}>Deconectare</MenuItem>
+     
+      <MenuItem onClick={handleSignOut}>
+        <ExitToAppIcon /> Deconectare
+      </MenuItem>
     </Menu>
   );
 
-  
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenuNotLogged = (
     <Menu
@@ -206,29 +280,43 @@ export default function PrimarySearchAppBar(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem
+        onClick={() => {
+          moveTo("about");
+        }}
+      >
         <IconButton color="inherit">
-          <Badge color="secondary"></Badge>
+          <Badge color="secondary">
+            <InfoIcon />
+          </Badge>
         </IconButton>
         <p>Despre</p>
       </MenuItem>
 
-      <MenuItem>
+      <MenuItem
+        onClick={() => {
+          moveTo("contact");
+        }}
+      >
         <IconButton color="inherit">
           <Badge color="secondary">
-            <MailIcon />
+            <ContactPhoneIcon />
           </Badge>
         </IconButton>
         <p>Contact</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={() => history.push("/Register")}>
         <IconButton aria-label="Create an account" color="inherit">
-          <Badge color="secondary"></Badge>
+          <Badge color="secondary">
+            <MeetingRoomIcon />
+          </Badge>
         </IconButton>
         <p>Înregistrare</p>
       </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton aria-label="Sign In" color="inherit"></IconButton>
+      <MenuItem onClick={() => history.push("/SignIn")}>
+        <IconButton aria-label="Sign In" color="inherit">
+          <InputIcon />
+        </IconButton>
         <p>Conectare</p>
       </MenuItem>
     </Menu>
@@ -243,34 +331,16 @@ export default function PrimarySearchAppBar(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem onClick={handleMessagesInbox}>
         <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={11} color="secondary">
+          <Badge badgeContent={noOfMessages} color="secondary">
             <MailIcon />
           </Badge>
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileClick}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profil</p>
-      </MenuItem>
 
+    
       <MenuItem onClick={handleSignOut}>
         <IconButton
           aria-label="account of current user"
@@ -278,7 +348,7 @@ export default function PrimarySearchAppBar(props) {
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          <ExitToAppIcon />
         </IconButton>
         <p>Deconectare</p>
       </MenuItem>
@@ -288,15 +358,83 @@ export default function PrimarySearchAppBar(props) {
   if (isLoggedIn) {
     return (
       <div className={classes.grow}>
+        <div>
+          <Dialog
+            fullScreen={fullScreen}
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="responsive-dialog-title"
+          >
+            <div className={classes.root}>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/kVe31I1.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/mFlx0B5.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/ckgO7dt.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+              <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                {" "}
+                {
+                  <img
+                    alt="2"
+                    height="100%"
+                    width="100%"
+                    src={"https://i.imgur.com/poC7jzf.png"}
+                  ></img>
+                }{" "}
+              </Paper>
+            </div>
+            <hr className="style-two" />
+            <DialogContent>
+              <DialogContentText>
+                Let Google help apps determine location. This means sending
+                anonymous location data to Google, even when no apps are
+                running.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button autoFocus onClick={handleClose} color="primary">
+                Disagree
+              </Button>
+              <Button onClick={handleClose} color="primary" autoFocus>
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
         <AppBar style={{ backgroundColor: "#282A36" }} position="static">
           <Toolbar>
-            <IconButton 
+            <IconButton
               edge="start"
               className={classes.menuButton}
               color="inherit"
               aria-label="open drawer"
             >
-              <Badge  >
+              <Badge>
                 <TemporaryDrawer></TemporaryDrawer>
               </Badge>
             </IconButton>
@@ -312,16 +450,18 @@ export default function PrimarySearchAppBar(props) {
               Școala de șoferi online
             </Typography>
 
-           
-           
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-              <IconButton aria-label="show 4 new mails" color="inherit" onClick={handleMessagesInbox}>
+              <IconButton
+                aria-label="show 4 new mails"
+                color="inherit"
+                onClick={handleMessagesInbox}
+              >
                 <Badge badgeContent={noOfMessages} color="secondary">
                   <MailIcon />
                 </Badge>
               </IconButton>
-   
+
               <IconButton
                 edge="end"
                 aria-label="account of current user"
@@ -351,19 +491,128 @@ export default function PrimarySearchAppBar(props) {
       </div>
     );
   } else {
-    console.log(props);
     return (
       <div className={classes.grow}>
+        <div>
+          <Dialog
+            fullScreen={fullScreen}
+            open={open2}
+            onClose={handleClose2}
+            aria-labelledby="responsive-dialog-title"
+          >
+            <DialogTitle id="responsive-dialog-title">
+              {"Despre noi"}
+            </DialogTitle>
+            <DialogContent>
+              <div className={classes.root3}>
+                <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                  {" "}
+                  {
+                    <img
+                      alt="2"
+                      height="100%"
+                      src={"https://i.imgur.com/qOYPlYZ.png"}
+                    ></img>
+                  }{" "}
+                </Paper>
+              </div>
+
+              <h2 style={{ color: "black" }}>
+                Ești gata să obții permisul auto? Înregistrează-te și urmează
+                pașii pentru a beneficia de serviciile noastre.
+              </h2>
+              <div style={{ textAlign: "center" }}>
+                <h3>Contact:</h3>
+                <h2>Email: triscu.cristian@gmail.com</h2>
+                <h2>Telefon: +40751816395</h2>
+              </div>
+
+              <div></div>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose2} color="secondary" autoFocus>
+                Închide
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+
+        <div>
+          <Dialog
+            fullScreen={fullScreen}
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="responsive-dialog-title"
+          >
+            <DialogTitle id="responsive-dialog-title">
+              {"Despre noi"}
+            </DialogTitle>
+            <DialogContent>
+              <div className={classes.root}>
+                <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                  {
+                    <img
+                      alt="2"
+                      height="100%"
+                      width="100%"
+                      src={"https://i.imgur.com/kVe31I1.png"}
+                    ></img>
+                  }{" "}
+                </Paper>
+                <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                  {
+                    <img
+                      alt="2"
+                      height="100%"
+                      width="100%"
+                      src={"https://i.imgur.com/mFlx0B5.png"}
+                    ></img>
+                  }{" "}
+                </Paper>
+                <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                  {
+                    <img
+                      alt="2"
+                      height="100%"
+                      width="100%"
+                      src={"https://i.imgur.com/ckgO7dt.png"}
+                    ></img>
+                  }{" "}
+                </Paper>
+                <Paper style={{ backgroundColor: "#41395b" }} elevation={3}>
+                  {" "}
+                  {
+                    <img
+                      alt="2"
+                      height="100%"
+                      width="100%"
+                      src={"https://i.imgur.com/poC7jzf.png"}
+                    ></img>
+                  }{" "}
+                </Paper>
+                <h2
+                  style={{
+                    color: "black",
+                    width: "100%",
+                    textAlign: "justify",
+                  }}
+                >
+                  Oferim servicii profesioniste pentru a pregăti șoferi
+                  responsabili și capabili să facă față provocărilor de zi cu zi
+                  din trafic.
+                </h2>
+              </div>
+              <hr className="style-two" />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="secondary" autoFocus>
+                Închide
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
         <AppBar style={{ backgroundColor: "#282A36" }} position="static">
           <Toolbar>
-            <IconButton
-              edge="start"
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="open drawer"
-            >
-              <MenuIcon />
-            </IconButton>
             <Typography
               onClick={() => history.push("/")}
               className={classes.title}
@@ -372,25 +621,32 @@ export default function PrimarySearchAppBar(props) {
             >
               Școala de șoferi online
             </Typography>
-        
-   
 
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <Button
                 style={{ backgroundColor: "#343746", color: "white" }}
                 variant="contained"
+                onClick={() => {
+                  moveTo("contact");
+                }}
               >
                 Contact
               </Button>
+
               <div className="divider"></div>
+
               <Button
                 style={{ backgroundColor: "#343746", color: "white" }}
                 variant="contained"
                 color="secondary"
+                onClick={() => {
+                  moveTo("about");
+                }}
               >
                 Despre
               </Button>
+
               <div className="divider"></div>
               <Button
                 variant="contained"

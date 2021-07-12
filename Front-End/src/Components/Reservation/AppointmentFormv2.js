@@ -62,7 +62,7 @@ export default function AppointmentFormv2(props) {
         };
         const response = await fetch(server + "requests", requestOptions);
         const data = await response.json();
-        console.log(data);
+ 
         if (data) {
           handleClose();
           alert("Succes!");

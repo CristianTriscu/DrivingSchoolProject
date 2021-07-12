@@ -3,18 +3,15 @@ import {
   Packer,
   Document,
   HeadingLevel,
-  VerticalAlign,
-  HorizontalPositionAlign,
+
 } from "docx";
 import { Paragraph } from "docx";
 import {
-  ThickUnderline,
+
   AlignmentType,
-  TabStopPosition,
-  TabStopType,
-  TextRun,
+
 } from "docx";
-import { Alignment } from "docx";
+
 
 
 export default function generateContractScolarizare() {
@@ -31,7 +28,7 @@ export default function generateContractScolarizare() {
             }),
             new Paragraph({}),
             new Paragraph({
-              text: "NR ${'751713283'} încheiat la data de ${31.10.2020}",
+              text: `NR 751713283 încheiat la data de $31.10.2020`,
               alignment: AlignmentType.JUSTIFIED,
             }),
             new Paragraph({}),
@@ -258,7 +255,7 @@ export default function generateContractScolarizare() {
     });
   
     Packer.toBlob(doc).then((blob) => {
-      console.log(blob);
+     
       saveAs(blob, "CONTRACT DE SCOLARIZARE.docx");
       console.log("Document created successfully");
     });

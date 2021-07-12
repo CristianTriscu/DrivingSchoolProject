@@ -19,6 +19,7 @@ import StarsIcon from "@material-ui/icons/Stars";
 import DescriptionIcon from "@material-ui/icons/Description";
 import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import PeopleIcon from "@material-ui/icons/People";
+import MenuBookIcon from "@material-ui/icons/MenuBook";
 const useStyles = makeStyles({
   list: {
     paddingTop: 20,
@@ -36,17 +37,25 @@ const useStyles = makeStyles({
   },
 });
 const openInNewTab = (url) => {
-  const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-  if (newWindow) newWindow.opener = null
-}
+  if (localStorage.getItem("clientInfo")) {
+    var clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+  }
+  if(Object.keys(clientInfo).length >0){
+
+  const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+  if (newWindow) newWindow.opener = null;}
+  else{
+    alert("Încă nu aveți acces la această secțiune")
+  }
+};
 export default function TemporaryDrawer() {
   let userType = null;
   let user = JSON.parse(localStorage.getItem("client"));
+
   if (user) {
     userType = user.result.role;
   }
 
-  console.log(userType);
   const history = useHistory();
   const classes = useStyles();
   const [state, setState] = React.useState({
@@ -97,21 +106,23 @@ export default function TemporaryDrawer() {
           <ListItemText primary={"Bun venit!"} />
         </ListItem>
 
-        <ListItem
-          button
-          key={"Dashboard"}
-          onClick={() =>
-            history.push({
-              pathname: "/DashboardAuth",
-              state: { email: localStorage.getItem("driverEmail") },
-            })
-          }
-        >
-          <ListItemIcon>
-            <DashboardIcon className={classes.icon} />
-          </ListItemIcon>
-          <ListItemText primary={"Dashboard"} />
-        </ListItem>
+        {userType === "client" ? (
+          <ListItem
+            button
+            key={"Dashboard"}
+            onClick={() =>
+              history.push({
+                pathname: "/DashboardAuth",
+                state: { email: localStorage.getItem("driverEmail") },
+              })
+            }
+          >
+            <ListItemIcon>
+              <DashboardIcon className={classes.icon} />
+            </ListItemIcon>
+            <ListItemText primary={"Dashboard"} />
+          </ListItem>
+        ) : null}
 
         {userType === "client" || userType === "instructor" ? (
           <ListItem
@@ -126,7 +137,8 @@ export default function TemporaryDrawer() {
           </ListItem>
         ) : null}
 
-        {userType==="instructor" ?(   <ListItem
+        {userType === "instructor" ? (
+          <ListItem
             button
             key={"Tabel cursanți"}
             onClick={() => history.push("/ClientsTable")}
@@ -135,26 +147,32 @@ export default function TemporaryDrawer() {
               <InsertInvitationIcon className={classes.icon} />
             </ListItemIcon>
             <ListItemText primary={"Tabel cursanți"} />
-          </ListItem>):null}
+          </ListItem>
+        ) : null}
 
-        {userType === "client" ? (
+        {userType === "client"? (
           <ListItem
             button
             key={"Teste de verificare"}
-            onClick={()=> openInNewTab('http://localhost:3001/')}
-           
+            onClick={() => openInNewTab("http://localhost:3001/")}
           >
             <ListItemIcon>
-              <InsertInvitationIcon className={classes.icon} />
+              <MenuBookIcon className={classes.icon} />
             </ListItemIcon>
             <ListItemText primary={"Teste de verificare"} />
           </ListItem>
         ) : null}
+
+
       </List>
 
       <Divider style={{ backgroundColor: "#F8F8F2" }} />
       <List>
-        <ListItem button key={"Notificări"}>
+        <ListItem
+          button
+          key={"Notificări"}
+          onClick={() => history.push("/Messages")}
+        >
           <ListItemIcon>
             <EmailIcon className={classes.icon} />
           </ListItemIcon>

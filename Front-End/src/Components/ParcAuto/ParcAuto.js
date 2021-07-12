@@ -71,31 +71,30 @@ export default function TabsWrappedLabel(props) {
   let VehiclesB = vehicles.filter((v) => v.vehicle_type === "B");
   let VehiclesC = vehicles.filter((v) => v.vehicle_type === "C");
   let VehiclesD = vehicles.filter((v) => v.vehicle_type === "D");
-
+  let VehiclesA = vehicles.filter((v) => v.vehicle_type === "A");
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const loadVehicles = async () => {
-    try {
-      const requestOptions = {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      };
-      const response = await fetch(server + "vehicles", requestOptions);
-      const data = await response.json();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const requestOptions = {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        };
+        const response = await fetch(server + "vehicles", requestOptions);
+        const data = await response.json();
 
-      if (data) {
-        setVehicles(data);
-        //console.log(data);
-      } else console.log("404");
-    } catch (err) {
-      alert(err.toString());
+        if (data) {
+          setVehicles(data);
+          //console.log(data);
+        } else console.log("404");
+      } catch (err) {
+        alert(err.toString());
+      }
     }
-  };
-
-  useEffect(async () => {
-    loadVehicles();
+    fetchData();
   }, []);
 
   return (
@@ -112,7 +111,7 @@ export default function TabsWrappedLabel(props) {
             wrapped
             {...a11yProps("one")}
           />
-          <Tab value="two" label="Categoria A/A1/A2/AM" {...a11yProps("two")} />
+          <Tab value="two" label="Categoria A" {...a11yProps("two")} />
           <Tab value="three" label="Categoria C/CE" {...a11yProps("three")} />
           <Tab value="four" label="Categoria D" {...a11yProps("four")} />
         </Tabs>
@@ -134,7 +133,21 @@ export default function TabsWrappedLabel(props) {
         <br></br>
       </TabPanel>
       <TabPanel value={value} index="two">
-        Urmează sa fie adaugate imaginile
+      <Paper className={classes.paper}>
+          <div class="carousel-wrapper">
+            <Carousel dynamicHeight="true">
+              {VehiclesA.map((v) => (
+                <div>
+                  <img alt="vehicles-category-A" src={v.image_url} />
+                  <p className="legend">{v.make + " " + v.model}</p>
+                
+                </div>
+              ))}
+            </Carousel>
+          </div>
+        </Paper>
+        <br></br>
+        <br></br>
       </TabPanel>
       <TabPanel value={value} index="three">
         <Paper className={classes.paper}>

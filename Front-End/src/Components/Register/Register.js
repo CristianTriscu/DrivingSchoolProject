@@ -64,13 +64,13 @@ class Registration extends Component {
       });
       return;
     }
-    const newUserCredentials = {
-      email: this.state.email,
-      username: this.state.username,
-      password: this.state.password,
-      passwordConfirm: this.state.passwordConfirm,
-    };
-    console.log("this.props.newUserCredentials", newUserCredentials);
+    // const newUserCredentials = {
+    //   email: this.state.email,
+    //   username: this.state.username,
+    //   password: this.state.password,
+    //   passwordConfirm: this.state.passwordConfirm,
+    // };
+    
     //dispath to userActions
 
     const requestOptions = {
@@ -130,7 +130,7 @@ class Registration extends Component {
 
                 <FormControl required fullWidth margin="normal">
                   <InputLabel htmlFor="Username" className={classes.labels}>
-                    username
+                    utilizator
                   </InputLabel>
                   <Input
                     name="Username"
@@ -144,7 +144,7 @@ class Registration extends Component {
 
                 <FormControl required fullWidth margin="normal">
                   <InputLabel htmlFor="password" className={classes.labels}>
-                    password
+                    parola
                   </InputLabel>
                   <Input
                     name="password"
@@ -180,7 +180,7 @@ class Registration extends Component {
                     htmlFor="passwordConfirm"
                     className={classes.labels}
                   >
-                    confirm password
+                    confirmare parola
                   </InputLabel>
                   <Input
                     name="passwordConfirm"
@@ -220,7 +220,7 @@ class Registration extends Component {
                   type="submit"
                   onClick={this.submitRegistration}
                 >
-                  Join
+                  Înregistrează-te
                 </Button>
               </form>
               {this.state.error ? (

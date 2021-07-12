@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import generateContractScolarizare from "./ContractDeScolarizare";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 import { register } from "../Register/RegistrationStyles";
-import { Button,Typography } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import { TextField } from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -14,24 +13,24 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import server from "../../ServerName/ServerName";
-
-import DocSelector from "./DocSelector"
+import { Typography } from "@material-ui/core";
+import DocSelector from "./DocSelector";
 const columns = [
-  {id:"doc",
-  align: "right",
-   minWidth:50},
-  { id: "id", label: "Id", minWidth: 50 ,
-  align: "right",
-  format: (value) => value.toLocaleString("en-US"),
-},
-  { id: "last_name", label: "Nume", minWidth: 100,align: "right", },
-  { id: "first_name", label: "Prenume", minWidth: 100,align: "right", },
+  { id: "doc", align: "right", minWidth: 50 },
+  {
+    id: "id",
+    label: "Id",
+    minWidth: 50,
+    align: "right",
+    format: (value) => value.toLocaleString("en-US"),
+  },
+  { id: "last_name", label: "Nume", minWidth: 100, align: "right" },
+  { id: "first_name", label: "Prenume", minWidth: 100, align: "right" },
   {
     id: "phone",
     label: "Telefon",
     minWidth: 170,
     align: "right",
-    
   },
   {
     id: "email",
@@ -63,9 +62,6 @@ const columns = [
   },
 ];
 
-
-
-
 class GenerateDocuments extends Component {
   constructor() {
     super();
@@ -75,7 +71,7 @@ class GenerateDocuments extends Component {
       rowsPerPage: 10,
       data: [],
       favPlaces: [],
-      inputText:"",
+      inputText: "",
     };
 
     this.handleFilter = (e) => {
@@ -83,7 +79,6 @@ class GenerateDocuments extends Component {
         inputText: e.target.value,
       });
       if (this.state.inputText.length < 2) {
-       
         this.loadData();
       } else {
         let clone = JSON.parse(JSON.stringify(this.state.data));
@@ -103,125 +98,132 @@ class GenerateDocuments extends Component {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         };
-        const response = await fetch(
-          server + "clients" ,
-          requestOptions
-        );
-       
+        const response = await fetch(server + "clients", requestOptions);
+
         const data = await response.json();
         this.setState({
           data: data,
         });
-        console.log("clienti aici")
-        console.log(this.state.data);
       } catch (err) {
         alert(err.toString());
       }
     };
-
   }
 
-  componentDidMount(){
-    this.loadData()
+  componentDidMount() {
+    this.loadData();
   }
   render() {
     const { classes } = this.props;
-    return (
-      <div
-        id="registerBg"
-        style={{ backgroundColor: "#4F527D", minHeight: "100vh" }}
-      >
-        <div className={classes.main}>
-          <CssBaseline />
+    const client = JSON.parse(localStorage.getItem("client"));
+    if (client.result.role === "admin") {
+      return (
+        <div
+          id="registerBg"
+          style={{ backgroundColor: "#4F527D", minHeight: "100vh" }}
+        >
+          <div className={classes.main}>
+            <CssBaseline />
 
-          <Paper className={classes.paper} style={{ minHeight: "100vh" }}>
-            <Button /*onClick={() => generateContractScolarizare()}*/>
-              Generați documente pentru cursantul selectat.
-            </Button>
-            <div className="divider"></div>
-            <Paper className={classes.root}>
-            <TextField
-                    id="outlined-basic"
-                    label="Caută după nume..."
-                    variant="outlined"
-                    onChange={this.handleFilter}
-                  />
-              <TableContainer className={classes.container}>
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ minWidth: column.minWidth }}
-                        >
-                          {column.label}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.state.data
-                      .slice(
-                        this.state.page * this.state.rowsPerPage,
-                        this.state.page * this.state.rowsPerPage +
-                          this.state.rowsPerPage
-                      )
-                      .map((row) => {
-                        return (
-                          <TableRow
-                            hover
-                            role="checkbox"
-                            tabIndex={-1}
-                            key={row.code}
-                          
+            <Paper className={classes.paper} style={{ minHeight: "100vh" }}>
+              <Button /*onClick={() => generateContractScolarizare()}*/>
+                Generați documente pentru cursantul selectat.
+              </Button>
+              <div className="divider"></div>
+              <Paper className={classes.root}>
+                <TextField
+                  id="outlined-basic"
+                  label="Caută după nume..."
+                  variant="outlined"
+                  onChange={this.handleFilter}
+                />
+                <TableContainer className={classes.container}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {columns.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ minWidth: column.minWidth }}
                           >
-                            {columns.map((column) => {
-                              const value = row[column.id];
+                            {column.label}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.state.data
+                        .slice(
+                          this.state.page * this.state.rowsPerPage,
+                          this.state.page * this.state.rowsPerPage +
+                            this.state.rowsPerPage
+                        )
+                        .map((row) => {
+                          return (
+                            <TableRow
+                              hover
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={row.code}
+                            >
+                              {columns.map((column) => {
+                                const value = row[column.id];
 
-                              return (
-                                <TableCell key={column.id} align={column.align}>
-                                  
-                                  {column.id === 'doc'? <DocSelector clientId={row['id']} />:null}
-                                  {typeof value ==='boolean' && value ===true ?
-                                  
-                                    value===true?'DA':'NU'
-                                  :null  }
-                                  
-                                  {column.format && typeof value === "number"
-                                    ? !column.id === "id"
-                                      ? column.format(value)
-                                      : value
-                                    : column.id === "id"
-                                    ? null
-                                    : value}
+                                return (
+                                  <TableCell
+                                    key={column.id}
+                                    align={column.align}
+                                  >
+                                    {column.id === "doc" ? (
+                                      <DocSelector clientId={row["id"]} />
+                                    ) : null}
+                                    {typeof value === "boolean" &&
+                                    value === true
+                                      ? value === true
+                                        ? "DA"
+                                        : "NU"
+                                      : null}
 
-                                  
-                                </TableCell>
-                              );
-                            })}
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={this.state.data.length}
-                rowsPerPage={this.state.rowsPerPage}
-                page={this.state.page}
-                onChangePage={this.handleChangePage}
-                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-              />
+                                    {column.format && typeof value === "number"
+                                      ? !column.id === "id"
+                                        ? column.format(value)
+                                        : value
+                                      : column.id === "id"
+                                      ? null
+                                      : value}
+                                  </TableCell>
+                                );
+                              })}
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  rowsPerPageOptions={[10, 25, 100]}
+                  component="div"
+                  count={this.state.data.length}
+                  rowsPerPage={this.state.rowsPerPage}
+                  page={this.state.page}
+                  onChangePage={this.handleChangePage}
+                  onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                />
+              </Paper>
             </Paper>
-          </Paper>
-          
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div style={{ minHeight: "90vh" }}>
+          <Typography variant="h2" style={{ paddingTop: "15rem" }}>
+            Nu aveți acces la această funcționalitate.
+          </Typography>
+        </div>
+      );
+    }
   }
 }
 export default withStyles(register)(GenerateDocuments);
