@@ -25,6 +25,8 @@ export default function UnavailablePeriodForm(props) {
     new Date("2018-06-27T11:00:00")
   );
 
+  
+  console.log(props);
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setSelectedDate2(date);
@@ -52,7 +54,7 @@ export default function UnavailablePeriodForm(props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             title: valueName,
-            employeeId: 6,
+            employeeId: props.employeeId,
             startDate: new Date(selectedDate).toString(),
             endDate: new Date(selectedDate2).toString(),
             ClientId: null,
@@ -67,7 +69,7 @@ export default function UnavailablePeriodForm(props) {
         if (data) {
           handleClose();
           alert("Succes!");
-          props.loadData(6);
+          props.loadData(props.employeeId);
         } else {
           console.log("Something is wrong!");
         }
@@ -96,7 +98,7 @@ export default function UnavailablePeriodForm(props) {
         style={{ marginTop: "1rem", marginLeft: "1rem" }}
         variant="contained"
         color="primary"
-        onClick={() => props.loadData(6)}
+        onClick={() => props.loadData(props.employeeId)}
       >
         Reîncarca date
       </Button>

@@ -58,7 +58,7 @@ const columns = [
     label: "Data inscriere",
     minWidth: 170,
     align: "right",
-    format: (value) => value.toLocaleString("en-US"),
+    format: (value) => new Date(value).toLocaleDateString("RO"),
   },
 ];
 
@@ -176,7 +176,10 @@ class GenerateDocuments extends Component {
                                     align={column.align}
                                   >
                                     {column.id === "doc" ? (
-                                      <DocSelector clientId={row["id"]} />
+                                      <DocSelector
+                                        clientId={row["id"]}
+                                        category={row["license_type"]}
+                                      />
                                     ) : null}
                                     {typeof value === "boolean" &&
                                     value === true
@@ -186,12 +189,18 @@ class GenerateDocuments extends Component {
                                       : null}
 
                                     {column.format && typeof value === "number"
-                                      ? !column.id === "id"
+                                      ? !column.id === "id" ||
+                                        !column.id === "createdAt"
                                         ? column.format(value)
                                         : value
-                                      : column.id === "id"
+                                      : column.id === "id" ||
+                                        column.id === "createdAt"
                                       ? null
                                       : value}
+
+                                    {column.id === "createdAt"
+                                      ? column.format(value)
+                                      : null}
                                   </TableCell>
                                 );
                               })}

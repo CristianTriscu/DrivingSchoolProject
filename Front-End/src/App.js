@@ -15,7 +15,7 @@ import GenerateDocuments from "./Components/Documents/GenerateDocuments";
 import Series from "./Components/Series/Series";
 import Groups from "./Components/Groups/Groups";
 import ClientsTable from "./Components/ClientsTable/ClientsTable";
-import { makeStyles } from "@material-ui/core/styles";
+
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 
@@ -41,20 +41,11 @@ function App() {
       }, 0);
     }
   }, [hash]);
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      width: "100%",
-      "& > * + *": {
-        marginTop: theme.spacing(2),
-      },
-    },
-  }));
-  const classes = useStyles();
+
+ 
   const [open, setOpen] = React.useState(true);
 
-  const handleClick = () => {
-    setOpen(true);
-  };
+
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {

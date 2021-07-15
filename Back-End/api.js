@@ -668,8 +668,8 @@ router.route("/requests").post((req, res) => {
 });
 
 router.route("/unavailablePeriod").post((req, res) => {
-  request
-    .create({
+  try {
+    const unav = request.create({
       employeeId: req.body.employeeId,
       title: req.body.title,
       service_id: req.body.service_id,
@@ -678,11 +678,16 @@ router.route("/unavailablePeriod").post((req, res) => {
       endDate: req.body.endDate,
       state: "unavailable",
       ClientId: null,
-    })
-    .then((response) => res.status(200).json(response))
-    .catch((err) => {
-      res.status(400), console.log(err);
     });
+
+    if(unav){
+      res.status(200).json(unav)
+    }else{
+      res.status(400).json({message:"wrong"})
+    }
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 router.route("/requests/:id").put((req, res) => {
@@ -770,7 +775,7 @@ router.route("/makeRequestReservation/:id").delete(async (req, res) => {
       await message.create({
         content: `Ședință acceptată pentru data de ${date.toLocaleDateString()}. Ora de începere: ${date.getHours()}:${minutes} - Ora de finalizare ${date2.getHours()}:${minutes2}`,
         ClientId: reservation_.ClientId,
-        isRead:false,
+        isRead: false,
       });
       res.status(200).json({ message: "accepted" });
     } else {
@@ -1539,9 +1544,7 @@ router.route("/getMessages/:clientId").get(async (req, res) => {
       where: {
         ClientId: req.params.clientId,
       },
-      order: [
-        ['id', 'DESC'],
-    ],
+      order: [["id", "DESC"]],
     });
     if (messages) res.status(200).json(messages);
     else res.status(404).json({ message: "no messages" });
@@ -1550,15 +1553,13 @@ router.route("/getMessages/:clientId").get(async (req, res) => {
   }
 });
 
-
 router.route("/getUnreadMessages/:clientId").get(async (req, res) => {
   try {
     let messages = await message.findAll({
       where: {
         ClientId: req.params.clientId,
-        isRead:false,
+        isRead: false,
       },
-    
     });
     if (messages) res.status(200).json(messages);
     else res.status(404).json({ message: "no messages" });
@@ -1614,6 +1615,23 @@ router.route("/markAsUnRead/:id").put(async (req, res) => {
     console.warn(e);
   }
 });
+
+router.route("/identityCardByClientId/:id").get(async(req,res)=>{
+  try{
+    let identityCardInfo = await identityCard.findOne(
+      {where:{clientId:req.params.id}
+    
+    })
+    if(identityCardInfo){
+      res.status(200).json(identityCardInfo);
+    }else{
+      res.status(404).json({message:"not found"})
+    }
+  }catch(e){
+    console.log(e);
+  }
+})
+
 
 router.route("/fillData").post(async (req, res) => {
   try {

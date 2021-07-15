@@ -1,4 +1,4 @@
-import { red } from "@material-ui/core/colors";
+
 
 const orange = "#F2A74B";
 const textLight = "#eaf2f4";

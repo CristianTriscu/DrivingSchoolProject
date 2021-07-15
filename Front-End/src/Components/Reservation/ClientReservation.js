@@ -27,6 +27,7 @@ import WaitingList from "./WaitingList";
 import { Typography } from "@material-ui/core";
 import CallIcon from "@material-ui/icons/Call";
 import UnavailablePeriodForm from "./UnavailablePeriodForm";
+
 const styles = (theme) => ({
   addButton: {
     bottom: theme.spacing(1) * 2,
@@ -128,6 +129,7 @@ class Demo extends React.PureComponent {
       startDayHour: 7,
       endDayHour: 20,
       isNewAppointment: false,
+      employeeId: 0,
     };
 
     this.currentViewNameChange = (currentViewName) => {
@@ -221,14 +223,28 @@ class Demo extends React.PureComponent {
   }
 
   componentDidMount() {
+    const client = JSON.parse(localStorage.getItem("client"));
+    // this.loadEmployeeData(6);
+    // this.loadData(6);
+
+    if (client.result.role === "client") {
+      const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+    
+      this.loadEmployeeData(clientInfo.employeeId);
+      this.loadData(clientInfo.employeeId);
+    } else {
+      const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
+    
+      this.loadEmployeeData(employeeInfo.id);
+      this.loadData(employeeInfo.id);
+    }
+
     // if (clientDetails.result.role === "client") {
     //   this.loadEmployeeData(clientInfo.employeeId);
     //   this.loadData(clientInfo.employeeId);
     // } else {
     //   this.loadData(employeeInfo.id);
     // }
-    this.loadEmployeeData(6);
-    this.loadData(6);
   }
 
   componentDidUpdate() {
@@ -263,10 +279,8 @@ class Demo extends React.PureComponent {
       const response = await fetch(server + "requests/" + id, requestOptions);
       const data = await response.json();
 
-      
-
       if (data.message === "deleted" && response.status === 200) {
-        this.loadData(6);
+        this.loadData(this.state.employeeInfo.id);
       } else {
         alert("Server error");
       }
@@ -288,7 +302,7 @@ class Demo extends React.PureComponent {
       const data = await response.json();
 
       if (data.message === "accepted" && response.status === 200) {
-        this.loadData(6);
+        this.loadData(this.state.employeeId);
       } else {
         alert("Server error");
       }
@@ -351,9 +365,8 @@ class Demo extends React.PureComponent {
     //const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
     const employeeInfo = JSON.parse(localStorage.getItem("employeeInfo"));
     
- 
-      const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
-
+    const clientInfo = JSON.parse(localStorage.getItem("clientInfo"));
+    
     const {
       currentDate,
       data,
@@ -364,122 +377,131 @@ class Demo extends React.PureComponent {
     } = this.state;
     const { classes } = this.props;
 
-    if(Object.keys(clientInfo).length === 0){
-      return(
-        <div style={{minHeight:"90vh"}}>
-          <Typography variant="h2" style={{paddingTop:"15rem"}}>
-          Încă nu aveți acces la această funcționalitate.
+    if (Object.keys(clientInfo).length === 0) {
+      return (
+        <div style={{ minHeight: "90vh" }}>
+          <Typography variant="h2" style={{ paddingTop: "15rem" }}>
+            Încă nu aveți acces la această funcționalitate.
           </Typography>
-          </div>
-      )
-    }else{
-    return (
-      <div className={classes.bg}>
-        {clientDetails.result.role === "client" ? (
-          <Paper className={classes.paper}>
-            <Typography>{`Bun venit, ${"Cristian"} ${"Triscu"}!`}</Typography>
-            <Typography>{`Puteți folosi următoarea rubrică pentru a solicita o ședință`}</Typography>
-            <Typography displayInline variant="h8" color="primary">
-              {`Instructor: ${this.state.employeeInfo.first_name} ${this.state.employeeInfo.last_name} `}
-              <span itemprop="telephone">
+        </div>
+      );
+    } else {
+      return (
+        <div className={classes.bg}>
+          {clientDetails.result.role === "client" ? (
+            <Paper className={classes.paper}>
+              <Typography>{`Bun venit, ${"Cristian"} ${"Triscu"}!`}</Typography>
+              <Typography>{`Puteți folosi următoarea rubrică pentru a solicita o ședință`}</Typography>
+              <Typography displayInline variant="h8" color="primary">
+                {`Instructor: ${this.state.employeeInfo.first_name} ${this.state.employeeInfo.last_name} `}
+                <span itemprop="telephone">
+                  <Button
+                    style={{ marginLeft: "1rem", backgroundColor: "#9B9DC0" }}
+                  >
+                    <CallIcon color="primary" />
+                    <div style={{ width: "0.3rem" }}></div>
+                    <a href="tel:123-456-7890">
+                      {this.state.employeeInfo.phone}
+                    </a>
+                  </Button>
+                </span>
+              </Typography>
+            </Paper>
+          ) : (
+            <Paper className={classes.paper}>
+              <Typography>{`Bun venit, ${employeeInfo.last_name} ${employeeInfo.first_name}`}</Typography>
+              <Typography variant="h8" color="secondary">
+                Accesați lista de așteptare pentru a accepta/respinge
+                solicitarile cursanților
+              </Typography>
+            </Paper>
+          )}
+          <Paper>
+            <Scheduler data={data} locale={"en-US"} minHeight="100vh">
+              {clientDetails.result.role === "client" ? (
+                <AppointmentFormv2 
+                employeeId={this.state.employeeInfo.id}
+                loadData={this.loadData}></AppointmentFormv2>
+              ) : (
+                <div>
+                  <WaitingList
+                    employeeId={this.state.employeeInfo.id}
+                    acceptRequest={this.acceptRequest}
+                    deleteRequest={()=>this.DeleteAppointmentById(this.state.deletedAppointmentId)}
+                    data={data}
+                  ></WaitingList>
+                  <br></br>
+                  <UnavailablePeriodForm
+                    employeeId={this.state.employeeInfo.id}
+                    loadData={this.loadData}
+                  />
+                </div>
+              )}
+
+              <ViewState
+                currentDate={currentDate}
+                currentViewName={this.state.currentViewName}
+                onCurrentViewNameChange={this.currentViewNameChange}
+                onCurrentDateChange={this.currentDateChange}
+              />
+              <EditingState
+                onCommitChanges={this.commitChanges}
+                onEditingAppointmentChange={this.onEditingAppointmentChange}
+                onAddedAppointmentChange={this.onAddedAppointmentChange}
+              />
+              <DayView startDayHour={startDayHour} endDayHour={endDayHour} />
+              <WeekView startDayHour={startDayHour} endDayHour={endDayHour} />
+
+              <EditRecurrenceMenu />
+              <Appointments
+                loadData={this.loadData}
+                appointmentComponent={CustomAppointment}
+              />
+
+              {!clientDetails.result.role === "client" ? (
+                <AppointmentTooltip
+                  showDeleteButton
+                  showCloseButton
+                ></AppointmentTooltip>
+              ) : (
+                <AppointmentTooltip
+                  showCloseButton
+                  showDeleteButton
+                ></AppointmentTooltip>
+              )}
+              <Toolbar />
+              <DateNavigator></DateNavigator>
+              <ViewSwitcher />
+            </Scheduler>
+
+            <Dialog open={confirmationVisible} onClose={this.cancelDelete}>
+              <DialogTitle>Delete Appointment</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Are you sure you want to delete this appointment?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
                 <Button
-                  style={{ marginLeft: "1rem", backgroundColor: "#9B9DC0" }}
+                  onClick={this.toggleConfirmationVisible}
+                  color="primary"
+                  variant="outlined"
                 >
-                  <CallIcon color="primary" />
-                  <div style={{ width: "0.3rem" }}></div>
-                  <a href="tel:123-456-7890">{this.state.employeeInfo.phone}</a>
+                  Cancel
                 </Button>
-              </span>
-            </Typography>
+                <Button
+                  onClick={this.commitDeletedAppointment}
+                  color="secondary"
+                  variant="outlined"
+                >
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Paper>
-        ) : (
-          <Paper className={classes.paper}>
-            <Typography>{`Bun venit, ${employeeInfo.last_name} ${employeeInfo.first_name}`}</Typography>
-            <Typography variant="h8" color="secondary">
-              Accesați lista de așteptare pentru a accepta/respinge solicitarile
-              cursanților
-            </Typography>
-          </Paper>
-        )}
-        <Paper>
-          <Scheduler data={data} locale={"en-US"} minHeight="100vh">
-            {clientDetails.result.role === "client" ? (
-              <AppointmentFormv2 loadData={this.loadData}></AppointmentFormv2>
-            ) : (
-              <div>
-                <WaitingList
-                  acceptRequest={this.acceptRequest}
-                  deleteRequest={this.DeleteAppointmentById}
-                  data={data}
-                ></WaitingList>
-                <br></br>
-                <UnavailablePeriodForm loadData={this.loadData} />
-              </div>
-            )}
-
-            <ViewState
-              currentDate={currentDate}
-              currentViewName={this.state.currentViewName}
-              onCurrentViewNameChange={this.currentViewNameChange}
-              onCurrentDateChange={this.currentDateChange}
-            />
-            <EditingState
-              onCommitChanges={this.commitChanges}
-              onEditingAppointmentChange={this.onEditingAppointmentChange}
-              onAddedAppointmentChange={this.onAddedAppointmentChange}
-            />
-            <DayView startDayHour={startDayHour} endDayHour={endDayHour} />
-            <WeekView startDayHour={startDayHour} endDayHour={endDayHour} />
-
-            <EditRecurrenceMenu />
-            <Appointments
-              loadData={this.loadData}
-              appointmentComponent={CustomAppointment}
-            />
-
-            {!clientDetails.result.role === "client" ? (
-              <AppointmentTooltip
-                showDeleteButton
-                showCloseButton
-              ></AppointmentTooltip>
-            ) : (
-              <AppointmentTooltip
-                showCloseButton
-                showDeleteButton
-              ></AppointmentTooltip>
-            )}
-            <Toolbar />
-            <DateNavigator></DateNavigator>
-            <ViewSwitcher />
-          </Scheduler>
-
-          <Dialog open={confirmationVisible} onClose={this.cancelDelete}>
-            <DialogTitle>Delete Appointment</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Are you sure you want to delete this appointment?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.toggleConfirmationVisible}
-                color="primary"
-                variant="outlined"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={this.commitDeletedAppointment}
-                color="secondary"
-                variant="outlined"
-              >
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Paper>
-      </div>
-    );}
+        </div>
+      );
+    }
   }
 }
 

@@ -140,7 +140,9 @@ export const identityCard = sequelize.define("identityCards", {
   issuedBy: { type: Sequelize.STRING },
   issuedDate: { type: Sequelize.STRING },
   expirationDate: { type: Sequelize.STRING },
-  socialSecurityNumber: { type: Sequelize.INTEGER },
+  socialSecurityNumber: { type: Sequelize.STRING},
+  fatherName:{type:Sequelize.STRING},
+  motherName:{type:Sequelize.STRING}
 });
 
 export const job_title = sequelize.define("job_titles", {
@@ -334,7 +336,7 @@ user.hasOne(employee);
 employee.hasOne(job_title);
 Client.hasMany(license_type);
 
-//pana
+
 
 //reservation.hasOne(driving_lesson_service);
 vehicle.hasOne(employee);
